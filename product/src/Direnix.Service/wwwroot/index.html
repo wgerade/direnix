@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Direnix</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">DX</div>
+        <div>
+          <div class="brand-title">Direnix</div>
+          <div class="brand-subtitle" id="brand-mode">LocalSecure</div>
+        </div>
+      </div>
+
+      <nav class="nav-tabs">
+        <button class="nav-tab is-active" type="button" data-view="overview" data-i18n="nav.overview">Painel</button>
+        <button class="nav-tab" type="button" data-view="collect" data-i18n="nav.assessments">Avaliacoes</button>
+        <button class="nav-tab" type="button" data-view="findings" data-i18n="nav.risks">Riscos</button>
+        <button class="nav-tab" type="button" data-view="timeline" data-i18n="nav.timeline">Linha do tempo</button>
+        <button class="nav-tab" type="button" data-view="inventory" data-i18n="nav.inventory">Inventario</button>
+        <button class="nav-tab" type="button" data-view="settings" data-i18n="nav.settings">Configuracoes</button>
+        <button class="nav-tab" type="button" data-view="operations" data-i18n="nav.operations">Operacao</button>
+      </nav>
+
+      <div class="sidebar-status">
+        <span class="status-light" id="sidebar-light"></span>
+        <span id="sidebar-status">…</span>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Active Directory hygiene</p>
+          <h1 id="page-title">Painel</h1>
+          <p id="page-subtitle"></p>
+        </div>
+        <div class="topbar-actions">
+          <div class="global-search">
+            <input type="search" id="global-search" data-i18n-ph="search.global" placeholder="Buscar usuário, grupo, SID, GUID, SPN…" autocomplete="off">
+            <div class="search-results" id="search-results" hidden></div>
+          </div>
+          <button class="icon-button" type="button" id="theme-toggle" title="Tema">◐</button>
+          <button class="icon-button" type="button" id="lang-toggle" title="Idioma">PT</button>
+          <button class="secondary-button" type="button" id="refresh-button" data-i18n="topbar.refresh">Atualizar</button>
+          <button class="primary-button" type="button" id="top-new-collection-button" data-i18n="topbar.new">Nova avaliacao</button>
+          <button class="icon-button" type="button" id="logout-button" title="Sair" data-i18n-title="auth.logout">⎋</button>
+        </div>
+      </header>
+
+      <!-- PAINEL -->
+      <section class="view is-visible" id="view-overview">
+        <div class="hero-band">
+          <div>
+            <p class="eyebrow" data-i18n="overview.posture">Postura atual</p>
+            <h2 id="environment-title">—</h2>
+            <p id="environment-summary"></p>
+          </div>
+          <div class="hero-status">
+            <span id="coverage-mode"></span>
+            <strong id="latest-run"></strong>
+          </div>
+        </div>
+
+        <div class="score-cards" id="score-cards"></div>
+
+        <section class="panel wide morning-panel">
+          <div class="panel-heading"><h3 data-i18n="morning.title">O que mudou desde ontem</h3><span class="panel-tag" id="morning-tag"></span></div>
+          <div class="morning-grid" id="morning-grid"></div>
+          <div class="empty-table" id="morning-empty" hidden><strong data-i18n="morning.empty">Sem mudanças no período</strong></div>
+        </section>
+
+        <section class="panel wide indicators-panel">
+          <div class="panel-heading"><h3 data-i18n="indicators.title">Indicadores operacionais</h3><span class="panel-tag" id="indicators-tag"></span></div>
+          <div class="morning-grid" id="indicators-grid"></div>
+          <div class="empty-table" id="indicators-empty" hidden><strong data-i18n="indicators.empty">Nenhum indicador neste ciclo</strong></div>
+        </section>
+
+        <div class="metrics-grid" id="metrics-grid"></div>
+
+        <div class="dashboard-grid">
+          <section class="panel wide">
+            <div class="panel-heading"><h3 data-i18n="overview.topRisks">Top riscos</h3><span class="panel-tag" id="top-risks-tag"></span></div>
+            <table class="data-table">
+              <thead><tr>
+                <th data-i18n="col.risk">Risco</th><th data-i18n="col.category">Categoria</th>
+                <th data-i18n="col.indicator">Indicador</th><th data-i18n="col.object">Objeto</th>
+              </tr></thead>
+              <tbody id="top-risks-body"></tbody>
+            </table>
+            <div class="empty-table" id="top-risks-empty"><strong data-i18n="empty.risks">Sem riscos</strong></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading"><h3 data-i18n="overview.bySeverity">Riscos por severidade</h3><span class="panel-tag" id="backlog-tag"></span></div>
+            <div class="queue-list" id="backlog-list"></div>
+            <p class="legend" data-i18n="overview.legend">Critico &gt; Alto &gt; Medio &gt; Baixo &gt; Info</p>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading"><h3 data-i18n="overview.byCategory">Riscos por categoria</h3><span class="panel-tag" id="category-tag"></span></div>
+            <div class="queue-list" id="category-list"></div>
+          </section>
+        </div>
+      </section>
+
+      <!-- AVALIACOES (wizard) -->
+      <section class="view" id="view-collect">
+        <div class="workbench-grid">
+          <section class="panel wide">
+            <div class="panel-heading"><h3 data-i18n="assess.new">Nova avaliacao</h3><span class="panel-tag" id="collect-status-tag"></span></div>
+
+            <div class="reassess-banner" id="reassess-banner" hidden>
+              <span id="reassess-banner-text"></span>
+              <button class="secondary-button" type="button" id="reassess-clear" data-i18n="reassess.clear">Cancelar reavaliacao</button>
+            </div>
+
+            <div class="wizard-step">
+              <h4><span class="step-num">1</span> <span data-i18n="assess.step.target">Alvo</span></h4>
+              <div class="form-grid">
+                <label><span data-i18n="assess.domain">Dominio</span><input id="collect-domain" type="text" placeholder="exemplo.local"></label>
+                <label><span data-i18n="assess.dc">Controlador</span><input id="collect-host" type="text" placeholder="dc01.exemplo.local"></label>
+                <label><span data-i18n="assess.protocol">Protocolo</span><select id="collect-protocol"><option value="Ldaps">LDAPS 636</option><option value="Ldap">LDAP 389</option></select></label>
+                <label><span data-i18n="assess.user">Usuario</span><input id="collect-user" type="text" placeholder="DOMINIO\\usuario"></label>
+                <label><span data-i18n="assess.secret">Senha</span><input id="collect-secret" type="password"></label>
+                <label><span data-i18n="assess.operator">Operador</span><input id="collect-operator" type="text" placeholder="seu.nome"></label>
+              </div>
+              <button class="secondary-button" type="button" id="probe-button" data-i18n="assess.validate">Validar conectividade</button>
+              <div class="probe-result" id="probe-result"></div>
+            </div>
+
+            <div class="wizard-step">
+              <h4><span class="step-num">2</span> <span data-i18n="assess.step.profile">Perfil de regras</span></h4>
+              <div class="form-grid">
+                <label><span data-i18n="assess.profile">Perfil</span><select id="collect-profile"></select></label>
+              </div>
+              <p class="legend" data-i18n="assess.profileHint">O perfil define thresholds e quais regras rodam. Gerencie em Configuracoes.</p>
+            </div>
+
+            <div class="action-strip">
+              <button class="primary-button" type="button" id="start-collection-button" data-i18n="assess.start">Iniciar avaliacao</button>
+            </div>
+            <div class="probe-result" id="run-progress" hidden><span id="run-progress-text"></span></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading"><h3 data-i18n="assess.how">Como funciona</h3><span class="panel-tag" data-i18n="assess.readonly">Read-only</span></div>
+            <ol class="how-list" id="how-list"></ol>
+          </section>
+        </div>
+        <section class="panel wide">
+          <div class="panel-heading"><h3 data-i18n="assess.history">Avaliacoes anteriores</h3><span class="panel-tag" id="runs-tag"></span></div>
+          <table class="data-table">
+            <thead><tr>
+              <th data-i18n="runs.when">Data</th><th data-i18n="runs.operator">Operador</th>
+              <th data-i18n="runs.executedAs">Executado por</th><th data-i18n="runs.coverage">Cobertura</th>
+              <th data-i18n="runs.objects">Objetos</th><th data-i18n="runs.findings">Riscos</th>
+            </tr></thead>
+            <tbody id="runs-body"></tbody>
+          </table>
+          <div class="empty-table" id="runs-empty"><strong data-i18n="runs.empty">Nenhuma avaliacao ainda</strong></div>
+        </section>
+      </section>
+
+      <!-- RISCOS -->
+      <section class="view" id="view-findings">
+        <section class="panel wide">
+          <div class="panel-heading">
+            <div class="status-tabs">
+              <button class="status-tab is-active" data-status="active" data-i18n="risks.active">Ativos</button>
+              <button class="status-tab" data-status="exception" data-i18n="risks.exception">Em excecao</button>
+              <button class="status-tab" data-status="resolved" data-i18n="risks.resolved">Resolvidos</button>
+            </div>
+            <div class="panel-controls">
+              <input type="search" id="findings-search" data-i18n-ph="risks.search" placeholder="Buscar objeto/indicador">
+              <select id="category-filter">
+                <option value="" data-i18n="cat.all">Todas categorias</option>
+                <option value="Hygiene" data-i18n="cat.Hygiene">Higiene</option>
+                <option value="PrivilegedAccess" data-i18n="cat.PrivilegedAccess">Acesso Privilegiado</option>
+                <option value="Hardening" data-i18n="cat.Hardening">Endurecimento</option>
+                <option value="Infrastructure" data-i18n="cat.Infrastructure">Infraestrutura</option>
+                <option value="Governance" data-i18n="cat.Governance">Governanca</option>
+              </select>
+              <span class="panel-tag" id="findings-tag"></span>
+            </div>
+          </div>
+          <div class="findings-actions" id="findings-actions">
+            <button class="secondary-button" type="button" id="reassess-selected" disabled data-i18n="reassess.selected">Reavaliar selecionados</button>
+            <button class="secondary-button" type="button" id="reassess-all" data-i18n="reassess.all">Reavaliar todos (na lista)</button>
+          </div>
+          <table class="data-table sortable">
+            <thead><tr>
+              <th class="col-check"><input type="checkbox" id="findings-check-all" title="Selecionar todos"></th>
+              <th data-sort="risk" data-i18n="col.severity">Severidade</th>
+              <th data-sort="category" data-i18n="col.category">Categoria</th>
+              <th data-sort="title" data-i18n="col.indicator">Indicador</th>
+              <th data-sort="object" data-i18n="col.object">Objeto</th>
+              <th data-sort="collected" data-i18n="col.collected">Avaliado em</th>
+              <th data-sort="action" data-i18n="col.action">Acao</th>
+              <th data-sort="status" data-i18n="col.status">Status</th>
+            </tr></thead>
+            <tbody id="findings-body"></tbody>
+          </table>
+          <div class="empty-table" id="findings-empty"><strong data-i18n="empty.risks">Sem riscos</strong></div>
+          <div class="pager" id="findings-pager"></div>
+
+          <table class="data-table" id="exceptions-table" hidden>
+            <thead><tr>
+              <th data-i18n="col.severity">Severidade</th><th data-i18n="col.indicator">Indicador</th>
+              <th data-i18n="col.object">Objeto</th><th data-i18n="drawer.owner">Responsavel</th>
+              <th data-i18n="drawer.justification">Justificativa</th><th data-i18n="exc.expires">Expira em</th>
+              <th></th>
+            </tr></thead>
+            <tbody id="exceptions-body"></tbody>
+          </table>
+          <div class="empty-table" id="exceptions-empty" hidden><strong data-i18n="exc.empty">Nenhuma excecao</strong></div>
+        </section>
+      </section>
+
+      <!-- LINHA DO TEMPO -->
+      <section class="view" id="view-timeline">
+        <section class="panel wide">
+          <div class="panel-heading">
+            <h3 data-i18n="timeline.title">Linha do tempo</h3>
+            <div class="panel-controls">
+              <select id="timeline-window">
+                <option value="24" data-i18n="timeline.24h">Últimas 24h</option>
+                <option value="168" data-i18n="timeline.7d">Últimos 7 dias</option>
+                <option value="0" data-i18n="timeline.all">Tudo</option>
+              </select>
+              <span class="panel-tag" id="timeline-tag"></span>
+            </div>
+          </div>
+          <div class="timeline" id="timeline-body"></div>
+          <div class="empty-table" id="timeline-empty" hidden><strong data-i18n="timeline.empty">Nenhuma mudança registrada</strong></div>
+        </section>
+      </section>
+
+      <!-- INVENTARIO -->
+      <section class="view" id="view-inventory">
+        <div class="inventory-grid" id="inventory-grid"></div>
+      </section>
+
+      <!-- CONFIGURACOES -->
+      <section class="view" id="view-settings">
+        <div class="settings-grid">
+          <section class="panel wide">
+            <div class="panel-heading"><h3 data-i18n="settings.profiles">Perfis de regras</h3><span class="panel-tag" id="profiles-status"></span></div>
+            <div class="form-grid">
+              <label><span data-i18n="settings.activeProfile">Perfil ativo</span><select id="profile-select"></select></label>
+              <label><span data-i18n="settings.newName">Nome (novo/duplicar)</span><input id="profile-name-input" type="text" placeholder="Ex.: Perfil da minha empresa"></label>
+            </div>
+            <div class="profile-actions">
+              <button class="secondary-button" type="button" id="profile-new" data-i18n="settings.new">Novo perfil</button>
+              <button class="secondary-button" type="button" id="profile-saveas" data-i18n="settings.saveAs">Salvar como…</button>
+              <button class="secondary-button" type="button" id="profile-save" data-i18n="settings.save">Salvar</button>
+              <button class="secondary-button danger" type="button" id="profile-delete" data-i18n="settings.delete">Excluir</button>
+              <button class="primary-button" type="button" id="profile-activate" data-i18n="settings.activate">Tornar ativo</button>
+            </div>
+            <p class="legend" id="profile-hint"></p>
+            <h4 data-i18n="settings.thresholds">Thresholds</h4>
+            <div class="form-grid">
+              <label><span data-i18n="th.staleUser">Conta sem uso (dias)</span><input id="th-staleUser" type="number" min="1" max="3650"></label>
+              <label><span data-i18n="th.staleComputer">Computador sem uso (dias)</span><input id="th-staleComputer" type="number" min="1" max="3650"></label>
+              <label><span data-i18n="th.disabled">Desabilitado retido (dias)</span><input id="th-disabled" type="number" min="1" max="3650"></label>
+              <label><span data-i18n="th.krbtgt">Rotacao krbtgt (dias)</span><input id="th-krbtgt" type="number" min="1" max="3650"></label>
+              <label><span data-i18n="th.maq">MachineAccountQuota esperado</span><input id="th-maq" type="number" min="0" max="65535"></label>
+              <label><span data-i18n="th.recycleBin">Retencao min. da Lixeira do AD (dias)</span><input id="th-recycleBin" type="number" min="1" max="3650"></label>
+              <label><span data-i18n="th.emptyDays">Grupo/OU vazio por (dias)</span><input id="th-emptyDays" type="number" min="0" max="3650"></label>
+            </div>
+            <h4 data-i18n="settings.rules">Regras</h4>
+            <p class="scope-note" data-i18n="settings.scopeNote">A coleta é automática: avaliamos apenas os tipos de objeto exigidos pelas regras ativas abaixo.</p>
+            <div class="rules-catalog" id="rules-catalog"></div>
+
+            <h4 data-i18n="ind.title">Indicadores operacionais</h4>
+            <p class="scope-note" data-i18n="ind.note">Contagens do dia a dia (senhas vencendo, contas bloqueadas…). Rodam junto da coleta deste perfil, inclusive a agendada.</p>
+            <div class="form-grid">
+              <label><span data-i18n="ind.horizon">Horizonte "vencendo/expirar" (dias)</span><input id="ind-horizon" type="number" min="1" max="365"></label>
+            </div>
+            <div class="rules-catalog" id="indicators-toggles"></div>
+
+            <h5 data-i18n="ind.custom">Indicadores customizados</h5>
+            <p class="scope-note" data-i18n="ind.customNote">Sua própria consulta (LDAP ou PowerShell). Executamos sempre como busca LDAP read-only — o PowerShell é só conforto de digitação, nunca é executado.</p>
+            <div id="custom-indicators-list" class="custom-ind-list"></div>
+            <div class="custom-ind-form">
+              <div class="form-grid">
+                <label><span data-i18n="ind.cName">Nome</span><input id="ci-name" type="text" placeholder="Contas de serviço sem PSO"></label>
+                <label><span data-i18n="ind.cType">Tipo de objeto</span><select id="ci-objtype">
+                  <option value="User">User</option><option value="Computer">Computer</option>
+                  <option value="Group">Group</option><option value="OrganizationalUnit">OU</option>
+                  <option value="GroupPolicyContainer">GPO</option></select></label>
+                <label><span data-i18n="ind.cKind">Sintaxe</span><select id="ci-kind">
+                  <option value="Ldap">LDAP</option><option value="PowerShell">PowerShell</option></select></label>
+              </div>
+              <label class="ci-query-label"><span data-i18n="ind.cQuery">Consulta</span>
+                <input id="ci-query" type="text" placeholder="(&amp;(objectCategory=person)(servicePrincipalName=*))"></label>
+              <div class="profile-actions">
+                <button class="secondary-button" type="button" id="ci-validate" data-i18n="ind.cValidate">Validar</button>
+                <button class="secondary-button" type="button" id="ci-add" data-i18n="ind.cAdd">Adicionar</button>
+              </div>
+              <p class="legend" id="ci-status"></p>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading"><h3 data-i18n="settings.db">Banco local</h3><span class="panel-tag" id="storage-tag"></span></div>
+            <div class="settings-row"><span data-i18n="settings.encryption">Criptografia</span><strong>SQLCipher</strong></div>
+            <div class="settings-row"><span data-i18n="settings.key">Chave</span><strong>DPAPI LocalMachine</strong></div>
+            <div class="settings-row"><span data-i18n="settings.path">Caminho</span><strong id="database-path">-</strong></div>
+          </section>
+        </div>
+      </section>
+
+      <!-- OPERACAO -->
+      <section class="view" id="view-operations">
+        <section class="panel wide">
+          <div class="panel-heading"><h3 data-i18n="svc.title">Configuração do serviço</h3><span class="panel-tag" id="svc-tag"></span></div>
+          <p class="scope-note" data-i18n="svc.note">Define como o serviço Windows roda. Para coleta automática segura, use uma gMSA (só o nome da conta; o Windows gerencia a senha).</p>
+          <div class="settings-row"><span data-i18n="svc.curIdentity">Identidade atual</span><strong id="svc-cur-identity">—</strong></div>
+          <div class="settings-row"><span data-i18n="svc.curStartup">Inicialização atual</span><strong id="svc-cur-startup">—</strong></div>
+          <div class="form-grid">
+            <label><span data-i18n="svc.startup">Tipo de inicialização</span>
+              <select id="svc-startup">
+                <option value="Automatic" data-i18n="svc.startAuto">Automático</option>
+                <option value="AutomaticDelayed" data-i18n="svc.startDelayed">Automático (atraso)</option>
+                <option value="Manual" data-i18n="svc.startManual">Manual</option>
+              </select></label>
+            <label><span data-i18n="svc.identity">Identidade (Log On As)</span>
+              <select id="svc-identity-mode">
+                <option value="LocalSystem" data-i18n="svc.idLocalSystem">LocalSystem</option>
+                <option value="Gmsa" data-i18n="svc.idGmsa">Conta gerenciada (gMSA)</option>
+              </select></label>
+            <label id="svc-account-row"><span data-i18n="svc.account">Conta gMSA</span><input id="svc-account" type="text" placeholder="DOMINIO\svc-Direnix$"></label>
+          </div>
+          <div class="form-actions">
+            <button class="primary-button" type="button" id="svc-apply" data-i18n="svc.apply">Aplicar configuração</button>
+          </div>
+          <p class="legend" id="svc-result"></p>
+        </section>
+        <section class="panel wide">
+          <div class="panel-heading"><h3 data-i18n="sched.title">Coleta automática</h3><span class="panel-tag" id="sched-tag"></span></div>
+          <p class="scope-note" data-i18n="sched.note">A coleta agendada roda sob a identidade do serviço (gMSA) via Kerberos/LDAPS — nenhuma senha é armazenada.</p>
+          <div class="form-grid">
+            <label><span data-i18n="sched.enabled">Habilitar</span>
+              <select id="sched-enabled"><option value="false" data-i18n="sched.off">Desativada</option><option value="true" data-i18n="sched.on">Ativada</option></select></label>
+            <label><span data-i18n="sched.frequency">Frequência</span>
+              <select id="sched-frequency">
+                <option value="Daily" data-i18n="sched.daily">Diária</option>
+                <option value="Weekly" data-i18n="sched.weekly">Semanal</option>
+                <option value="IntervalHours" data-i18n="sched.interval">A cada N horas</option>
+              </select></label>
+            <label><span data-i18n="sched.time">Horário (HH:MM)</span><input id="sched-time" type="time" value="02:00"></label>
+            <label><span data-i18n="sched.intervalHours">Intervalo (horas)</span><input id="sched-interval" type="number" min="1" max="168" value="24"></label>
+            <label><span data-i18n="sched.host">Controlador de domínio</span><input id="sched-host" type="text" placeholder="dc01.dominio.local"></label>
+            <label><span data-i18n="sched.profile">Perfil de regras</span><select id="sched-profile"></select></label>
+          </div>
+          <fieldset class="object-types" id="sched-weekdays-box">
+            <legend data-i18n="sched.weekdays">Dias da semana</legend>
+            <label><input type="checkbox" name="schedWeekday" value="1"> <span data-i18n="day.mon">Seg</span></label>
+            <label><input type="checkbox" name="schedWeekday" value="2"> <span data-i18n="day.tue">Ter</span></label>
+            <label><input type="checkbox" name="schedWeekday" value="3"> <span data-i18n="day.wed">Qua</span></label>
+            <label><input type="checkbox" name="schedWeekday" value="4"> <span data-i18n="day.thu">Qui</span></label>
+            <label><input type="checkbox" name="schedWeekday" value="5"> <span data-i18n="day.fri">Sex</span></label>
+            <label><input type="checkbox" name="schedWeekday" value="6"> <span data-i18n="day.sat">Sáb</span></label>
+            <label><input type="checkbox" name="schedWeekday" value="0"> <span data-i18n="day.sun">Dom</span></label>
+          </fieldset>
+          <div class="settings-row"><span data-i18n="sched.identity">Identidade da coleta</span><strong id="sched-identity">conta do serviço (gMSA)</strong></div>
+          <div class="settings-row"><span data-i18n="sched.last">Última execução</span><strong id="sched-last">—</strong></div>
+          <div class="settings-row"><span data-i18n="sched.next">Próxima execução</span><strong id="sched-next">—</strong></div>
+          <div class="form-actions">
+            <button class="secondary-button" type="button" id="sched-test" data-i18n="sched.test">Testar conectividade</button>
+            <button class="primary-button" type="button" id="sched-save" data-i18n="settings.save">Salvar</button>
+          </div>
+          <p class="legend" id="sched-result"></p>
+        </section>
+        <section class="panel wide">
+          <div class="panel-heading"><h3 data-i18n="ops.service">Servico local</h3><span class="panel-tag" id="operation-tag"></span></div>
+          <div class="operation-grid">
+            <a href="/health/live" target="_blank" rel="noreferrer">Health live</a>
+            <a href="/health/ready" target="_blank" rel="noreferrer">Health ready</a>
+            <a href="/api/v1/system/about" target="_blank" rel="noreferrer">System about</a>
+            <a href="/api/v1/app/shell" target="_blank" rel="noreferrer">App state</a>
+          </div>
+          <pre id="raw-status" class="raw-status">{}</pre>
+        </section>
+        <section class="panel wide">
+          <div class="panel-heading"><h3 data-i18n="ops.audit">Auditoria de ações</h3><span class="panel-tag" id="audit-tag"></span></div>
+          <table class="data-table">
+            <thead><tr>
+              <th data-i18n="audit.when">Data</th><th data-i18n="audit.actor">Operador</th>
+              <th data-i18n="audit.action">Ação</th><th data-i18n="audit.target">Alvo</th>
+              <th data-i18n="audit.result">Resultado</th>
+            </tr></thead>
+            <tbody id="audit-body"></tbody>
+          </table>
+          <div class="empty-table" id="audit-empty" hidden><strong data-i18n="audit.empty">Nenhuma ação registrada</strong></div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div class="drawer-overlay" id="finding-drawer" hidden>
+    <div class="drawer" role="dialog" aria-modal="true">
+      <button class="drawer-close" type="button" id="drawer-close">&times;</button>
+      <div id="drawer-content"></div>
+    </div>
+  </div>
+
+  <div class="drawer-overlay" id="object-drawer" hidden>
+    <div class="drawer" role="dialog" aria-modal="true">
+      <button class="drawer-close" type="button" id="object-drawer-close">&times;</button>
+      <div id="object-drawer-content"></div>
+    </div>
+  </div>
+
+  <div class="auth-overlay" id="auth-overlay" hidden>
+    <div class="auth-card">
+      <div class="brand-mark" aria-hidden="true">DX</div>
+      <h2 id="auth-title" data-i18n="auth.login">Entrar</h2>
+      <p class="auth-sub" id="auth-sub" data-i18n="auth.sub">Acesso ao portal de operações de identidade.</p>
+      <label><span data-i18n="auth.user">Usuário</span><input id="auth-username" type="text" autocomplete="username"></label>
+      <label><span data-i18n="auth.pass">Senha</span><input id="auth-password" type="password" autocomplete="current-password"></label>
+      <button class="primary-button" type="button" id="auth-submit" data-i18n="auth.login">Entrar</button>
+      <p class="auth-error" id="auth-error" hidden></p>
+    </div>
+  </div>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>

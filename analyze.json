@@ -1,0 +1,1 @@
+﻿{"domainName":null,"coverage":"NoDirectory","counts":[],"domainObjectFound":false,"machineAccountQuota":null,"groupsCollected":0,"privilegedGroupsDetected":[],"totalFindings":0,"findingsByRule":{},"sampleFindings":[],"warnings":["LDAP sem TLS permitido apenas como excecao explicita de laboratorio."],"errors":["Falha ao consultar RootDSE: The LDAP server is unavailable."]}

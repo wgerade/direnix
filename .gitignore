@@ -1,0 +1,39 @@
+# Local sensitive/runtime artifacts
+data/
+logs/
+output/
+backups/
+config/portal.local.json
+config/installed-profile.json
+
+# Demo/generated exports
+reports/
+*.adcx
+*.adcx-wal
+*.adcx-shm
+
+# Windows/editor noise
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
+
+# .NET / frontend build outputs
+bin/
+obj/
+node_modules/
+product/**/bin/
+product/**/obj/
+product/**/node_modules/
+/product/artifacts/
+
+# Retired prototype artifacts must not return to the repository root
+/dashboard/
+/scripts/
+/src/
+/dist/
+/Direnix.Setup.exe
+/Direnix.Service.exe
+
+# Built installers (distributed via releases, not the repo)
+*.msi

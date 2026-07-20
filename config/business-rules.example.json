@@ -1,0 +1,296 @@
+{
+  "schemaVersion": "0.1",
+  "policyProfile": "MicrosoftDefault",
+  "ruleCatalogVersion": "0.1",
+  "thresholds": {
+    "staleUserDays": 90,
+    "staleComputerDays": 90,
+    "staleServiceAccountDays": 90,
+    "dormantSensitiveEntityDays": 180,
+    "disabledObjectRetentionDays": 180,
+    "hybridEvidenceRequiredForCleanup": true,
+    "adRecycleBinRequiredForDelete": true,
+    "gpoRetentionUnlinkedDays": 90,
+    "criticalReplicationAgeHours": 24,
+    "lapsRotationDays": 60,
+    "machineAccountQuotaExpected": 0
+  },
+  "businessCriticality": {
+    "tier0Multiplier": 30,
+    "regulatedScopeMultiplier": 20,
+    "businessCriticalMultiplier": 20,
+    "missingOwnerMultiplier": 10,
+    "recurringFindingMultiplier": 10,
+    "approvedExceptionReduction": 20,
+    "lowEvidenceReduction": 15
+  },
+  "rules": [
+    {
+      "ruleId": "ADCLN-USER-STALE-001",
+      "title": "Enabled stale user account",
+      "category": "CleanupLifecycle",
+      "businessQuestion": "Quais contas humanas habilitadas nao demonstram uso recente e devem ser limpas ou justificadas?",
+      "severityBase": "Medium",
+      "decision": "CleanUp",
+      "thresholdRef": "staleUserDays",
+      "benchmarkRefs": [
+        "Microsoft Defender for Identity stale Active Directory accounts",
+        "NIST SP 800-53 AC-2",
+        "CIS Control 5 Account Management"
+      ],
+      "ownerType": "AD Engineering",
+      "slaDays": 90,
+      "autoRemediationAllowed": false,
+      "whatIfSupported": true,
+      "decisionSupport": [
+        "Collect lastLogon from all reachable DCs when possible",
+        "Check privileged membership before cleanup",
+        "Check hybrid sync indicators before delete",
+        "Export owner review CSV before action"
+      ],
+      "confidenceModel": {
+        "high": "stale threshold met, non-privileged, owner present, no hybrid uncertainty",
+        "medium": "stale threshold met but owner or event evidence is incomplete",
+        "low": "single evidence source only or hybrid evidence missing"
+      },
+      "managementSafeFields": [
+        "domain",
+        "objectType",
+        "ageDays",
+        "businessUnit",
+        "owner",
+        "severity"
+      ]
+    },
+    {
+      "ruleId": "ADCLN-HYBRID-EVID-010",
+      "title": "Hybrid identity cleanup evidence is incomplete",
+      "category": "CleanupLifecycle",
+      "businessQuestion": "Existe risco de limpar localmente uma identidade que ainda pode ser usada no Entra ID?",
+      "severityBase": "Medium",
+      "decision": "NeedsEvidence",
+      "thresholdRef": "hybridEvidenceRequiredForCleanup",
+      "benchmarkRefs": [
+        "Microsoft Entra Connect synchronization troubleshooting",
+        "Microsoft lastLogonTimestamp attribute behavior"
+      ],
+      "ownerType": "AD Engineering",
+      "slaDays": 30,
+      "autoRemediationAllowed": false,
+      "whatIfSupported": false,
+      "externalEvidenceRefs": [
+        "Manual Entra sign-in/activity export",
+        "Entra Connect sync error report",
+        "SIEM events 4624, 4768, 4769, 4776"
+      ],
+      "managementSafeFields": [
+        "domain",
+        "objectType",
+        "ageDays",
+        "businessUnit",
+        "owner",
+        "cloudEvidenceStatus",
+        "severity"
+      ]
+    },
+    {
+      "ruleId": "ADCLN-RECYCLEBIN-011",
+      "title": "AD Recycle Bin or deleted object retention is not validated",
+      "category": "CleanupLifecycle",
+      "businessQuestion": "O ambiente tem recuperabilidade suficiente antes de remover objetos do AD?",
+      "severityBase": "High",
+      "decision": "Implement",
+      "thresholdRef": "adRecycleBinRequiredForDelete",
+      "benchmarkRefs": [
+        "Microsoft Active Directory Recycle Bin",
+        "Microsoft deleted object lifetime guidance"
+      ],
+      "ownerType": "AD Engineering",
+      "slaDays": 30,
+      "autoRemediationAllowed": false,
+      "whatIfSupported": false,
+      "decisionSupport": [
+        "Validate optional feature state",
+        "Collect tombstoneLifetime",
+        "Collect msDS-deletedObjectLifetime when present",
+        "Prefer Disable or MoveToQuarantine until recoverability is accepted"
+      ],
+      "managementSafeFields": [
+        "domain",
+        "forest",
+        "recycleBinEnabled",
+        "retentionDays",
+        "severity",
+        "status"
+      ]
+    },
+    {
+      "ruleId": "ADPRV-DCSYNC-004",
+      "title": "Non-approved principal with DCSync-equivalent permissions",
+      "category": "PrivilegedAccess",
+      "businessQuestion": "Existe algum principal que pode replicar segredos do dominio sem ser DC ou conta explicitamente aprovada?",
+      "severityBase": "Critical",
+      "decision": "Adjust",
+      "thresholdValue": 0,
+      "benchmarkRefs": [
+        "Microsoft Defender for Identity DCSync exposure",
+        "Microsoft Active Directory security best practices",
+        "PingCastle Privileged Accounts"
+      ],
+      "ownerType": "Security",
+      "slaDays": 7,
+      "autoRemediationAllowed": false,
+      "whatIfSupported": false,
+      "managementSafeFields": [
+        "domain",
+        "findingCount",
+        "severity",
+        "owner",
+        "status"
+      ]
+    },
+    {
+      "ruleId": "ADAUTH-LDAP-SIGN-001",
+      "title": "LDAP signing not required on domain controllers",
+      "category": "AuthenticationHardening",
+      "businessQuestion": "O dominio esta protegido contra abuso de LDAP sem integridade de assinatura?",
+      "severityBase": "High",
+      "decision": "Implement",
+      "thresholdValue": "Require signing after compatibility validation",
+      "benchmarkRefs": [
+        "Microsoft Defender for Identity Resolve unsecure domain configurations",
+        "Microsoft LDAP signing guidance",
+        "Microsoft Security Baselines"
+      ],
+      "ownerType": "Infrastructure",
+      "slaDays": 30,
+      "autoRemediationAllowed": false,
+      "whatIfSupported": true,
+      "managementSafeFields": [
+        "domain",
+        "dcCount",
+        "nonCompliantDcCount",
+        "severity",
+        "status"
+      ]
+    },
+    {
+      "ruleId": "ADAUTH-MAQ-009",
+      "title": "MachineAccountQuota is above approved value",
+      "category": "AuthenticationHardening",
+      "businessQuestion": "Usuarios nao privilegiados ainda podem criar contas de computador no dominio?",
+      "severityBase": "High",
+      "decision": "Adjust",
+      "thresholdRef": "machineAccountQuotaExpected",
+      "benchmarkRefs": [
+        "Microsoft Defender for Identity Resolve unsecure domain configurations"
+      ],
+      "ownerType": "AD Engineering",
+      "slaDays": 30,
+      "autoRemediationAllowed": false,
+      "whatIfSupported": true,
+      "managementSafeFields": [
+        "domain",
+        "measuredValue",
+        "expectedValue",
+        "severity",
+        "status"
+      ]
+    },
+    {
+      "ruleId": "ADSVC-UNCONSTR-004",
+      "title": "Unconstrained delegation is enabled",
+      "category": "ServiceAccountsDelegation",
+      "businessQuestion": "Existe identidade ou computador que pode encaminhar credenciais Kerberos de forma ampla?",
+      "severityBase": "Critical",
+      "decision": "Adjust",
+      "thresholdValue": 0,
+      "benchmarkRefs": [
+        "Microsoft Defender for Identity account delegation assessment",
+        "Microsoft Active Directory security best practices"
+      ],
+      "ownerType": "Security",
+      "slaDays": 7,
+      "autoRemediationAllowed": false,
+      "whatIfSupported": false,
+      "managementSafeFields": [
+        "domain",
+        "findingCount",
+        "businessUnit",
+        "owner",
+        "severity"
+      ]
+    },
+    {
+      "ruleId": "ADGPO-DC-PERM-004",
+      "title": "Domain Controllers linked GPO has unsafe modify permissions",
+      "category": "GroupPolicyBaseline",
+      "businessQuestion": "Politicas que controlam DCs podem ser alteradas por principals nao aprovados?",
+      "severityBase": "Critical",
+      "decision": "Adjust",
+      "thresholdValue": 0,
+      "benchmarkRefs": [
+        "Microsoft Group Policy scope and processing",
+        "Microsoft Security Baselines",
+        "ADSecurity community GPO permission guidance"
+      ],
+      "ownerType": "AD Engineering",
+      "slaDays": 7,
+      "autoRemediationAllowed": false,
+      "whatIfSupported": false,
+      "managementSafeFields": [
+        "domain",
+        "gpoCount",
+        "severity",
+        "status"
+      ]
+    },
+    {
+      "ruleId": "ADDC-REPL-FAIL-001",
+      "title": "Active Directory replication failure detected",
+      "category": "ReplicationDcHealth",
+      "businessQuestion": "O AD esta replicando de forma confiavel entre DCs?",
+      "severityBase": "Critical",
+      "decision": "Investigate",
+      "thresholdValue": 0,
+      "benchmarkRefs": [
+        "Microsoft AD replication troubleshooting",
+        "PingCastle Stale Objects and Anomalies"
+      ],
+      "ownerType": "Infrastructure",
+      "slaDays": 7,
+      "autoRemediationAllowed": false,
+      "whatIfSupported": false,
+      "managementSafeFields": [
+        "domain",
+        "affectedDcCount",
+        "partitionCount",
+        "severity",
+        "status"
+      ]
+    },
+    {
+      "ruleId": "ADGOV-EXPIRED-002",
+      "title": "Accepted risk exception is expired",
+      "category": "Governance",
+      "businessQuestion": "Existem riscos aceitos que ja deveriam ter sido revisados?",
+      "severityBase": "High",
+      "decision": "AcceptRisk",
+      "thresholdValue": 0,
+      "benchmarkRefs": [
+        "NIST SP 800-53 Risk Assessment and Account Management governance"
+      ],
+      "ownerType": "Governance",
+      "slaDays": 30,
+      "autoRemediationAllowed": false,
+      "whatIfSupported": false,
+      "managementSafeFields": [
+        "exceptionId",
+        "businessUnit",
+        "owner",
+        "expiryDate",
+        "severity"
+      ]
+    }
+  ]
+}
