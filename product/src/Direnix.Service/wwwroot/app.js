@@ -15,6 +15,7 @@ const I18N = {
     "today.eyebrow": "Ronda diária", "today.last": "Última coleta", "today.next": "Próxima coleta",
     "today.noSched": "Coleta automática desativada", "today.schedOn": "Coleta automática ativada",
     "ind.emptyCta": "Ativar indicadores no perfil de regras",
+    "firstrun.done": "Primeira avaliação concluída", "firstrun.risks": "riscos encontrados", "firstrun.view": "Ver riscos",
     "indicators.title": "Indicadores operacionais", "indicators.empty": "Nenhum indicador neste ciclo",
     "ind.title": "Indicadores operacionais", "ind.note": "Contagens do dia a dia (senhas vencendo, contas bloqueadas…). Rodam junto da coleta deste perfil, inclusive a agendada.",
     "ind.horizon": "Horizonte \"vencendo/expirar\" (dias)", "ind.custom": "Indicadores customizados",
@@ -104,7 +105,7 @@ const I18N = {
     "ev.displayName": "Nome de exibição", "ev.objectSid": "SID", "ev.servicePrincipalName": "SPN",
     "ev.memberCount": "Membros", "ev.ageDays": "Idade (dias)", "ev.count": "Quantidade", "ev.sample": "Exemplos",
     "ev.enabled": "Habilitada", "ev.retentionDays": "Retenção (dias)", "ev.versionNumber": "Versão", "ev.flags": "Flags",
-    "assess.operator": "Operador", "assess.history": "Avaliações anteriores",
+    "assess.history": "Avaliações anteriores",
     "runs.when": "Data", "runs.operator": "Operador", "runs.executedAs": "Executado por",
     "runs.coverage": "Cobertura", "runs.objects": "Objetos", "runs.findings": "Riscos",
     "runs.empty": "Nenhuma avaliação ainda",
@@ -145,6 +146,7 @@ const I18N = {
     "today.eyebrow": "Daily rounds", "today.last": "Last collection", "today.next": "Next collection",
     "today.noSched": "Automatic collection disabled", "today.schedOn": "Automatic collection enabled",
     "ind.emptyCta": "Enable indicators in the rule profile",
+    "firstrun.done": "First assessment complete", "firstrun.risks": "risks found", "firstrun.view": "View risks",
     "indicators.title": "Operational indicators", "indicators.empty": "No indicators this cycle",
     "ind.title": "Operational indicators", "ind.note": "Day-to-day counts (passwords expiring, locked accounts…). They run with this profile's collection, including the scheduled one.",
     "ind.horizon": "\"Expiring\" horizon (days)", "ind.custom": "Custom indicators",
@@ -234,7 +236,7 @@ const I18N = {
     "ev.displayName": "Display name", "ev.objectSid": "SID", "ev.servicePrincipalName": "SPN",
     "ev.memberCount": "Members", "ev.ageDays": "Age (days)", "ev.count": "Count", "ev.sample": "Examples",
     "ev.enabled": "Enabled", "ev.retentionDays": "Retention (days)", "ev.versionNumber": "Version", "ev.flags": "Flags",
-    "assess.operator": "Operator", "assess.history": "Previous assessments",
+    "assess.history": "Previous assessments",
     "runs.when": "Date", "runs.operator": "Operator", "runs.executedAs": "Run as",
     "runs.coverage": "Coverage", "runs.objects": "Objects", "runs.findings": "Risks",
     "runs.empty": "No assessment yet",
@@ -1070,7 +1072,7 @@ function startReassess(objectKeys) {
   const last = state.lastAssess || {};
   const setVal = (id, v) => { const el = byId(id); if (el && v != null) el.value = v; };
   setVal("collect-host", last.host); setVal("collect-domain", last.domain);
-  setVal("collect-protocol", last.protocol); setVal("collect-operator", last.operator);
+  setVal("collect-protocol", last.protocol);
   const banner = byId("reassess-banner");
   if (banner) { banner.hidden = false; text("reassess-banner-text", t("reassess.banner").replace("{n}", keys.length)); }
   activateView("collect");
@@ -1330,7 +1332,7 @@ async function startCollection() {
   if (btn) btn.disabled = true; if (prog) prog.hidden = false;
   text("run-progress-text", "…");
   try {
-    const operator = byId("collect-operator")?.value.trim() || null;
+    const operator = sessionUser;
     const domain = principal.domain || byId("collect-domain")?.value.trim() || null;
     // Guarda o ultimo alvo para pre-preencher reavaliacoes dirigidas.
     state.lastAssess = { host, protocol, domain, operator };
@@ -1342,13 +1344,41 @@ async function startCollection() {
   } catch (e) { text("run-progress-text", e.message); } finally { if (btn) btn.disabled = false; }
 }
 async function pollRun(jobId) {
+  const wasFirstRun = runsCount === 0;
   for (let i = 0; i < 900; i++) {
     const s = await getJson(`${endpoints.runs}/${jobId}`);
     text("run-progress-text", `${s.stage}: ${s.message} (${s.collectedSoFar})`);
-    if (s.status === "Completed") { text("run-progress-text", `OK: ${s.findingCount} (${t("coverage." + s.coverageMode)})`); await refresh(); activateView("findings"); return; }
+    if (s.status === "Completed") {
+      await refresh();
+      if (wasFirstRun) { renderFirstRunResult(s); return; }
+      text("run-progress-text", `OK: ${s.findingCount} (${t("coverage." + s.coverageMode)})`);
+      activateView("findings");
+      return;
+    }
     if (s.status === "Failed") { text("run-progress-text", s.error ?? "—"); return; }
     await new Promise((r) => setTimeout(r, 1000));
   }
+}
+
+// Resultado da 1a avaliacao: mostra o que foi encontrado e conecta os proximos
+// passos (relatorio + coleta diaria) em vez de so pular para a lista de riscos.
+function renderFirstRunResult(s) {
+  const prog = byId("run-progress"); if (!prog) return;
+  const score = state.shell?.identityScore;
+  prog.hidden = false;
+  prog.innerHTML = `<div class="firstrun-result">
+    <strong>${t("firstrun.done")}</strong>
+    <p>${s.findingCount} ${t("firstrun.risks")}${score != null ? ` · Identity Score <strong>${score}%</strong>` : ""}</p>
+    <div class="profile-actions">
+      <button class="primary-button" type="button" data-fr="findings">${t("firstrun.view")}</button>
+      <button class="secondary-button" type="button" data-fr="report">${t("topbar.report")}</button>
+      <button class="secondary-button" type="button" data-fr="operations">${t("morning.goSchedule")}</button>
+    </div></div>`;
+  prog.querySelectorAll("[data-fr]").forEach((b) => b.addEventListener("click", () => {
+    const target = b.dataset.fr;
+    if (target === "report") { window.location = `/api/v1/reports/summary?lang=${lang}`; return; }
+    activateView(target);
+  }));
 }
 
 // ---------------- wiring ----------------
@@ -1460,6 +1490,7 @@ byId("profile-activate")?.addEventListener("click", async () => {
 
 // ---------------- auth ----------------
 let authMode = "login"; // "login" | "setup"
+let sessionUser = null; // operador = usuario logado (sem campo manual no wizard)
 function showAuth(needsSetup) {
   authMode = needsSetup ? "setup" : "login";
   const ov = byId("auth-overlay"); if (ov) ov.hidden = false;
@@ -1472,7 +1503,7 @@ function showAuth(needsSetup) {
 async function bootAuth() {
   try {
     const me = await getJson(`${endpoints.auth}/me`);
-    if (me.authenticated) { startApp(); return; }
+    if (me.authenticated) { sessionUser = me.username || null; startApp(); return; }
     showAuth(me.needsSetup === true);
   } catch { showAuth(false); }
 }
@@ -1498,6 +1529,7 @@ async function submitAuth() {
       return;
     }
     if (err) err.hidden = true;
+    try { const b = await res.json(); sessionUser = b.username || username; } catch { sessionUser = username; }
     const pwd = byId("auth-password"); if (pwd) pwd.value = "";
     startApp();
   } catch { if (err) { err.hidden = false; err.textContent = t("auth.bad"); } }
