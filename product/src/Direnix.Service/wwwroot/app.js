@@ -16,6 +16,8 @@ const I18N = {
     "today.noSched": "Coleta automática desativada", "today.schedOn": "Coleta automática ativada",
     "ind.emptyCta": "Ativar indicadores no perfil de regras",
     "firstrun.done": "Primeira avaliação concluída", "firstrun.risks": "riscos encontrados", "firstrun.view": "Ver riscos",
+    "demo.enter": "Explorar com dados de exemplo", "demo.banner": "MODO DEMO — dados fictícios, nada é salvo",
+    "demo.exit": "Sair do demo", "demo.readonly": "Ação indisponível no modo demo",
     "indicators.title": "Indicadores operacionais", "indicators.empty": "Nenhum indicador neste ciclo",
     "ind.title": "Indicadores operacionais", "ind.note": "Contagens do dia a dia (senhas vencendo, contas bloqueadas…). Rodam junto da coleta deste perfil, inclusive a agendada.",
     "ind.horizon": "Horizonte \"vencendo/expirar\" (dias)", "ind.custom": "Indicadores customizados",
@@ -147,6 +149,8 @@ const I18N = {
     "today.noSched": "Automatic collection disabled", "today.schedOn": "Automatic collection enabled",
     "ind.emptyCta": "Enable indicators in the rule profile",
     "firstrun.done": "First assessment complete", "firstrun.risks": "risks found", "firstrun.view": "View risks",
+    "demo.enter": "Explore with sample data", "demo.banner": "DEMO MODE — fictional data, nothing is saved",
+    "demo.exit": "Exit demo", "demo.readonly": "Not available in demo mode",
     "indicators.title": "Operational indicators", "indicators.empty": "No indicators this cycle",
     "ind.title": "Operational indicators", "ind.note": "Day-to-day counts (passwords expiring, locked accounts…). They run with this profile's collection, including the scheduled one.",
     "ind.horizon": "\"Expiring\" horizon (days)", "ind.custom": "Custom indicators",
@@ -568,8 +572,18 @@ function escapeHtml(v) { return String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&
 function sevClass(s) { return `sev-${String(s).toLowerCase()}`; }
 function sevBadge(s) { return `<span class="sev-badge ${sevClass(s)}">${t("sev." + s)}</span>`; }
 
-async function getJson(url) { const r = await fetch(url, { headers: { Accept: "application/json" } }); if (!r.ok) throw new Error(`${r.status}`); return r.json(); }
+// Modo demo: GETs respondem do fixture local (demo-data.js); nada sai para a rede.
+let demoMode = sessionStorage.getItem("dx-demo") === "1";
+async function getJson(url) {
+  if (demoMode) {
+    const d = window.DEMO_RESOLVE ? window.DEMO_RESOLVE(url) : null;
+    if (d) return d;
+    throw new Error("demo");
+  }
+  const r = await fetch(url, { headers: { Accept: "application/json" } }); if (!r.ok) throw new Error(`${r.status}`); return r.json();
+}
 async function sendJson(url, method, body) {
+  if (demoMode) throw new Error(t("demo.readonly"));
   const r = await fetch(url, { method, headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(body) });
   const p = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(p?.error ? JSON.stringify(p.error) : `${r.status}`);
@@ -1384,6 +1398,8 @@ function renderFirstRunResult(s) {
 // ---------------- wiring ----------------
 document.querySelectorAll(".nav-tab").forEach((b) => b.addEventListener("click", () => activateView(b.dataset.view)));
 byId("refresh-button")?.addEventListener("click", refresh);
+byId("demo-button")?.addEventListener("click", () => { sessionStorage.setItem("dx-demo", "1"); location.reload(); });
+byId("demo-exit")?.addEventListener("click", () => { sessionStorage.removeItem("dx-demo"); location.reload(); });
 byId("report-button")?.addEventListener("click", () => { window.location = `/api/v1/reports/summary?lang=${lang}`; });
 byId("findings-csv")?.addEventListener("click", () => {
   const params = new URLSearchParams({ view: findingsState.view, lang });
@@ -1501,6 +1517,7 @@ function showAuth(needsSetup) {
   byId("auth-username")?.focus();
 }
 async function bootAuth() {
+  if (demoMode) { sessionUser = "demo"; const b = byId("demo-banner"); if (b) b.hidden = false; startApp(); return; }
   try {
     const me = await getJson(`${endpoints.auth}/me`);
     if (me.authenticated) { sessionUser = me.username || null; startApp(); return; }

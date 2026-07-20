@@ -7,6 +7,10 @@
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
+  <div class="demo-banner" id="demo-banner" hidden>
+    <span data-i18n="demo.banner">MODO DEMO — dados fictícios, nada é salvo</span>
+    <button class="secondary-button" type="button" id="demo-exit" data-i18n="demo.exit">Sair do demo</button>
+  </div>
   <div class="app-shell">
     <aside class="sidebar">
       <div class="brand">
@@ -447,9 +451,11 @@
       <label><span data-i18n="auth.pass">Senha</span><input id="auth-password" type="password" autocomplete="current-password"></label>
       <button class="primary-button" type="button" id="auth-submit" data-i18n="auth.login">Entrar</button>
       <p class="auth-error" id="auth-error" hidden></p>
+      <button class="secondary-button auth-demo" type="button" id="demo-button" data-i18n="demo.enter">Explorar com dados de exemplo</button>
     </div>
   </div>
 
+  <script src="/demo-data.js" defer></script>
   <script src="/app.js" defer></script>
 </body>
 </html>

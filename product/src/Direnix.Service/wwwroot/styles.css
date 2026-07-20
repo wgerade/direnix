@@ -311,3 +311,9 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--primary-wea
 .exception-form label { color: var(--text); }
 .exception-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 0.5rem 0.2rem; border-bottom: 1px solid var(--border); }
 .exception-row small { color: var(--muted); }
+
+/* ---------------- modo demo ---------------- */
+.demo-banner { position: sticky; top: 0; z-index: 60; display: flex; justify-content: center; align-items: center; gap: 1rem; padding: 0.45rem 1rem; background: #b26a00; color: #fff; font-size: 0.82rem; font-weight: 600; }
+.demo-banner .secondary-button { padding: 0.2rem 0.7rem; font-size: 0.76rem; background: rgba(255, 255, 255, 0.15); color: #fff; border-color: rgba(255, 255, 255, 0.4); }
+.firstrun-result { display: flex; flex-direction: column; gap: 0.4rem; }
+.auth-demo { margin-top: 0.6rem; width: 100%; }
