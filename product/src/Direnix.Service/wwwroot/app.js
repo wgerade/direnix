@@ -3,12 +3,18 @@
 // ---------------- i18n ----------------
 const I18N = {
   pt: {
-    "nav.overview": "Painel", "nav.assessments": "Avaliações", "nav.risks": "Riscos",
+    "nav.today": "Hoje", "nav.overview": "Postura", "nav.assessments": "Avaliações", "nav.risks": "Riscos",
     "nav.inventory": "Inventário", "nav.settings": "Configurações", "nav.operations": "Operação",
     "nav.timeline": "Linha do tempo", "search.global": "Buscar usuário, grupo, SID, GUID, SPN…",
     "search.none": "Nada encontrado", "search.hint": "Digite ao menos 2 caracteres",
     "score.identity": "Identity Score", "score.tier0": "Tier 0", "score.critical": "Riscos críticos", "score.lastSync": "Última sincronização",
     "morning.title": "O que mudou desde ontem", "morning.empty": "Sem mudanças nas últimas 24h", "morning.newRisks": "Riscos novos (24h)",
+    "morning.first": "Nenhuma coleta ainda. Faça a primeira avaliação para ver o seu ambiente aqui.",
+    "morning.second": "Baseline criada. A timeline de mudanças nasce na 2ª coleta — agende a coleta diária e amanhã este painel mostra o que mudou.",
+    "morning.goCollect": "Fazer primeira avaliação", "morning.goSchedule": "Agendar coleta diária",
+    "today.eyebrow": "Ronda diária", "today.last": "Última coleta", "today.next": "Próxima coleta",
+    "today.noSched": "Coleta automática desativada", "today.schedOn": "Coleta automática ativada",
+    "ind.emptyCta": "Ativar indicadores no perfil de regras",
     "indicators.title": "Indicadores operacionais", "indicators.empty": "Nenhum indicador neste ciclo",
     "ind.title": "Indicadores operacionais", "ind.note": "Contagens do dia a dia (senhas vencendo, contas bloqueadas…). Rodam junto da coleta deste perfil, inclusive a agendada.",
     "ind.horizon": "Horizonte \"vencendo/expirar\" (dias)", "ind.custom": "Indicadores customizados",
@@ -26,6 +32,7 @@ const I18N = {
     "field.managedBy": "Responsável", "field.memberCount": "Membros", "field.versionNumber": "Versão", "field.flags": "Flags", "field.gPLink": "Vínculos de GPO",
     "topbar.refresh": "Atualizar", "topbar.new": "Nova avaliação",
     "topbar.report": "Relatório", "export.csv": "Exportar CSV",
+    "sub.today": "O que mudou, o que venceu e o que precisa de ação — todo dia.",
     "sub.overview": "Visão consolidada do ambiente avaliado.",
     "sub.collect": "Alvo, perfil e execução somente leitura contra o Active Directory.",
     "sub.findings": "Indicadores de exposição, evidência e ação recomendada.",
@@ -126,12 +133,18 @@ const I18N = {
     "exc.expires": "Expira em", "exc.empty": "Nenhuma exceção registrada", "exc.remove": "Remover", "exc.newName": "Nome do novo perfil:"
   },
   en: {
-    "nav.overview": "Dashboard", "nav.assessments": "Assessments", "nav.risks": "Risks",
+    "nav.today": "Today", "nav.overview": "Posture", "nav.assessments": "Assessments", "nav.risks": "Risks",
     "nav.inventory": "Inventory", "nav.settings": "Settings", "nav.operations": "Operations",
     "nav.timeline": "Timeline", "search.global": "Search user, group, SID, GUID, SPN…",
     "search.none": "Nothing found", "search.hint": "Type at least 2 characters",
     "score.identity": "Identity Score", "score.tier0": "Tier 0", "score.critical": "Critical risks", "score.lastSync": "Last sync",
     "morning.title": "What changed since yesterday", "morning.empty": "No changes in the last 24h", "morning.newRisks": "New risks (24h)",
+    "morning.first": "No collection yet. Run the first assessment to see your environment here.",
+    "morning.second": "Baseline created. The change timeline is born on the 2nd collection — schedule the daily collection and tomorrow this panel shows what changed.",
+    "morning.goCollect": "Run first assessment", "morning.goSchedule": "Schedule daily collection",
+    "today.eyebrow": "Daily rounds", "today.last": "Last collection", "today.next": "Next collection",
+    "today.noSched": "Automatic collection disabled", "today.schedOn": "Automatic collection enabled",
+    "ind.emptyCta": "Enable indicators in the rule profile",
     "indicators.title": "Operational indicators", "indicators.empty": "No indicators this cycle",
     "ind.title": "Operational indicators", "ind.note": "Day-to-day counts (passwords expiring, locked accounts…). They run with this profile's collection, including the scheduled one.",
     "ind.horizon": "\"Expiring\" horizon (days)", "ind.custom": "Custom indicators",
@@ -149,6 +162,7 @@ const I18N = {
     "field.managedBy": "Owner", "field.memberCount": "Members", "field.versionNumber": "Version", "field.flags": "Flags", "field.gPLink": "GPO links",
     "topbar.refresh": "Refresh", "topbar.new": "New assessment",
     "topbar.report": "Report", "export.csv": "Export CSV",
+    "sub.today": "What changed, what expired and what needs action — every day.",
     "sub.overview": "Consolidated view of the assessed environment.",
     "sub.collect": "Target, profile and read-only execution against Active Directory.",
     "sub.findings": "Exposure indicators, evidence and recommended action.",
@@ -588,14 +602,15 @@ const state = { shell: null, live: null, ready: null, about: null };
 const findingsState = { view: "active", category: "", search: "", sortKey: "risk", sortDir: "desc", page: 0, items: [], selected: new Set() };
 // Reavaliacao dirigida pendente (object keys selecionados) + ultimo alvo usado.
 let pendingFocus = [];
-let profilesState = null, ruleCatalog = [], currentView = "overview";
+let profilesState = null, ruleCatalog = [], currentView = "today";
+let runsCount = 0;
 let indicatorsCache = [], indicatorCatalog = [];
 const PAGE_SIZE = 50;
 
 // ---------------- header / nav ----------------
 function updatePageHeader(view) {
   currentView = view;
-  text("page-title", t("nav." + ({ overview:"overview", collect:"assessments", findings:"risks", timeline:"timeline", inventory:"inventory", settings:"settings", operations:"operations" }[view])));
+  text("page-title", t("nav." + ({ today:"today", overview:"overview", collect:"assessments", findings:"risks", timeline:"timeline", inventory:"inventory", settings:"settings", operations:"operations" }[view])));
   text("page-subtitle", t("sub." + view));
 }
 function activateView(view) {
@@ -667,12 +682,19 @@ async function loadIndicators() {
     indicatorsCache = data.items || [];
     const total = indicatorsCache.reduce((s, i) => s + i.count, 0);
     text("indicators-tag", `${total}`);
-    if (indicatorsCache.length === 0) { grid.innerHTML = ""; if (empty) empty.hidden = false; return; }
+    if (indicatorsCache.length === 0) { grid.innerHTML = ""; renderIndicatorsEmpty(empty); return; }
     if (empty) empty.hidden = true;
     grid.innerHTML = indicatorsCache.map((i) =>
       `<button class="morning-card${i.count > 0 ? "" : " muted-card"}" data-ind="${escapeHtml(i.id)}"><strong>${i.count}</strong><span>${escapeHtml(i.title)}</span></button>`).join("");
     grid.querySelectorAll("[data-ind]").forEach((b) => b.addEventListener("click", () => openIndicatorDetail(b.dataset.ind)));
-  } catch { indicatorsCache = []; grid.innerHTML = ""; if (empty) empty.hidden = false; }
+  } catch { indicatorsCache = []; grid.innerHTML = ""; renderIndicatorsEmpty(empty); }
+}
+
+function renderIndicatorsEmpty(el) {
+  if (!el) return;
+  el.hidden = false;
+  el.innerHTML = `<strong>${t("indicators.empty")}</strong><br><button class="secondary-button" type="button" data-goto="settings">${t("ind.emptyCta")}</button>`;
+  el.querySelector("[data-goto]")?.addEventListener("click", () => activateView("settings"));
 }
 
 function openIndicatorDetail(id) {
@@ -699,7 +721,7 @@ async function loadMorning() {
     const opTotal = opInds.reduce((s, i) => s + i.count, 0);
     const total = items.reduce((s, i) => s + i.count, 0) + newFindings + opTotal;
     text("morning-tag", `${total}`);
-    if (total === 0) { grid.innerHTML = ""; if (empty) empty.hidden = false; return; }
+    if (total === 0) { grid.innerHTML = ""; renderMorningEmpty(empty); return; }
     if (empty) empty.hidden = true;
     const opCards = opInds.map((i) =>
       `<button class="morning-card morning-op" data-ind="${escapeHtml(i.id)}"><strong>${i.count}</strong><span>${escapeHtml(i.title)}</span></button>`).join("");
@@ -717,7 +739,42 @@ async function loadMorning() {
       document.querySelectorAll(".status-tab").forEach((x) => x.classList.toggle("is-active", x.dataset.status === "active"));
       activateView("findings"); loadFindings();
     });
-  } catch { grid.innerHTML = ""; if (empty) empty.hidden = false; }
+  } catch { grid.innerHTML = ""; renderMorningEmpty(empty); }
+}
+
+// Estado vazio que ensina o proximo passo: sem coleta -> coletar;
+// so a baseline -> agendar (a timeline nasce na 2a coleta); senao, sem mudancas mesmo.
+function renderMorningEmpty(el) {
+  if (!el) return;
+  el.hidden = false;
+  if (runsCount === 0) {
+    el.innerHTML = `<strong>${t("morning.first")}</strong><br><button class="primary-button" type="button" data-goto="collect">${t("morning.goCollect")}</button>`;
+  } else if (runsCount === 1) {
+    el.innerHTML = `<strong>${t("morning.second")}</strong><br><button class="primary-button" type="button" data-goto="operations">${t("morning.goSchedule")}</button>`;
+  } else {
+    el.innerHTML = `<strong>${t("morning.empty")}</strong>`;
+  }
+  el.querySelectorAll("[data-goto]").forEach((b) => b.addEventListener("click", () => activateView(b.dataset.goto)));
+}
+
+async function renderToday(shell) {
+  const hasRun = shell?.dataContext?.hasCompletedCollection === true;
+  const domain = shell?.dataContext?.domainName;
+  const last = shell?.dataContext?.latestRunCompletedAt || shell?.dataContext?.latestRunStartedAt;
+  text("today-domain", hasRun ? (domain || t("env.domain")) : t("env.none"));
+  text("today-status", hasRun ? `${shell?.activeFindings ?? 0} ${t("env.risksFrom")}` : t("env.noneSub"));
+  text("today-lastrun", `${t("today.last")}: ${last ? fmtDate(last) : "—"}`);
+  const sched = byId("today-sched");
+  if (!sched) return;
+  try {
+    const c = await getJson(endpoints.schedule);
+    if (c.enabled) {
+      sched.textContent = c.nextRunAt ? `${t("today.next")}: ${fmtDate(c.nextRunAt)}` : t("today.schedOn");
+    } else {
+      sched.innerHTML = `<button class="secondary-button" type="button" data-goto="operations">${t("morning.goSchedule")}</button>`;
+      sched.querySelector("[data-goto]")?.addEventListener("click", () => activateView("operations"));
+    }
+  } catch { sched.textContent = ""; }
 }
 
 const timelineState = { window: 24, type: null };
@@ -798,6 +855,7 @@ function render() {
   text("operation-tag", serviceReady ? "Online" : "Offline");
   text("database-path", shell?.installation?.database ?? "-");
 
+  renderToday(shell);
   renderScoreCards(shell);
   renderMetrics(shell?.metrics ?? []);
   renderBacklog(shell?.severityBreakdown ?? []);
@@ -851,6 +909,7 @@ async function loadRuns() {
   try {
     const data = await getJson(`${endpoints.runsHistory}?limit=50`);
     const items = data.items ?? [];
+    runsCount = items.length;
     text("runs-tag", `${items.length}`);
     if (items.length === 0) { body.innerHTML = ""; if (empty) empty.hidden = false; return; }
     if (empty) empty.hidden = true;

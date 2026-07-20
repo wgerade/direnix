@@ -18,7 +18,8 @@
       </div>
 
       <nav class="nav-tabs">
-        <button class="nav-tab is-active" type="button" data-view="overview" data-i18n="nav.overview">Painel</button>
+        <button class="nav-tab is-active" type="button" data-view="today" data-i18n="nav.today">Hoje</button>
+        <button class="nav-tab" type="button" data-view="overview" data-i18n="nav.overview">Postura</button>
         <button class="nav-tab" type="button" data-view="collect" data-i18n="nav.assessments">Avaliacoes</button>
         <button class="nav-tab" type="button" data-view="findings" data-i18n="nav.risks">Riscos</button>
         <button class="nav-tab" type="button" data-view="timeline" data-i18n="nav.timeline">Linha do tempo</button>
@@ -54,8 +55,35 @@
         </div>
       </header>
 
-      <!-- PAINEL -->
-      <section class="view is-visible" id="view-overview">
+      <!-- HOJE (ronda diária) -->
+      <section class="view is-visible" id="view-today">
+        <div class="hero-band">
+          <div>
+            <p class="eyebrow" data-i18n="today.eyebrow">Ronda diária</p>
+            <h2 id="today-domain">—</h2>
+            <p id="today-status"></p>
+          </div>
+          <div class="hero-status">
+            <span id="today-sched"></span>
+            <strong id="today-lastrun"></strong>
+          </div>
+        </div>
+
+        <section class="panel wide morning-panel">
+          <div class="panel-heading"><h3 data-i18n="morning.title">O que mudou desde ontem</h3><span class="panel-tag" id="morning-tag"></span></div>
+          <div class="morning-grid" id="morning-grid"></div>
+          <div class="empty-table" id="morning-empty" hidden><strong data-i18n="morning.empty">Sem mudanças no período</strong></div>
+        </section>
+
+        <section class="panel wide indicators-panel">
+          <div class="panel-heading"><h3 data-i18n="indicators.title">Indicadores operacionais</h3><span class="panel-tag" id="indicators-tag"></span></div>
+          <div class="morning-grid" id="indicators-grid"></div>
+          <div class="empty-table" id="indicators-empty" hidden><strong data-i18n="indicators.empty">Nenhum indicador neste ciclo</strong></div>
+        </section>
+      </section>
+
+      <!-- POSTURA -->
+      <section class="view" id="view-overview">
         <div class="hero-band">
           <div>
             <p class="eyebrow" data-i18n="overview.posture">Postura atual</p>
@@ -69,18 +97,6 @@
         </div>
 
         <div class="score-cards" id="score-cards"></div>
-
-        <section class="panel wide morning-panel">
-          <div class="panel-heading"><h3 data-i18n="morning.title">O que mudou desde ontem</h3><span class="panel-tag" id="morning-tag"></span></div>
-          <div class="morning-grid" id="morning-grid"></div>
-          <div class="empty-table" id="morning-empty" hidden><strong data-i18n="morning.empty">Sem mudanças no período</strong></div>
-        </section>
-
-        <section class="panel wide indicators-panel">
-          <div class="panel-heading"><h3 data-i18n="indicators.title">Indicadores operacionais</h3><span class="panel-tag" id="indicators-tag"></span></div>
-          <div class="morning-grid" id="indicators-grid"></div>
-          <div class="empty-table" id="indicators-empty" hidden><strong data-i18n="indicators.empty">Nenhum indicador neste ciclo</strong></div>
-        </section>
 
         <div class="metrics-grid" id="metrics-grid"></div>
 
