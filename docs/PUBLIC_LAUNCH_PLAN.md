@@ -23,7 +23,7 @@ As fases v0.8 e GTM podem andar em paralelo. O post de LinkedIn só sai quando *
 
 ## Fase v0.8 — Atração ("Report & First Run")
 
-### 1. Relatório HTML exportável (item de maior impacto)
+### 1. Relatório HTML exportável (item de maior impacto) — CONCLUÍDO (2026-07-20)
 
 Um HTML autocontido (CSS inline, sem dependências externas), encaminhável por e-mail, com: Identity Score em destaque, resumo do ambiente, top riscos por severidade, indicadores operacionais, mudanças do período e metadados da coleta (data, cobertura, perfil). Rodapé com nome/versão da ferramenta e link — **o relatório é o principal veículo de divulgação orgânica**.
 
@@ -33,7 +33,7 @@ Um HTML autocontido (CSS inline, sem dependências externas), encaminhável por 
 - Critério de aceite: abrir o HTML num Outlook/Gmail encaminhado e continuar legível; CSV abre no Excel com acentuação correta (BOM UTF-8).
 - Esforço: M (3–5 dias).
 
-### 2. Reposicionar a UI na ronda diária ("Hoje" primeiro)
+### 2. Reposicionar a UI na ronda diária ("Hoje" primeiro) — CONCLUÍDO (2026-07-20)
 
 - Nova view inicial **"Hoje"**: Morning View + indicadores operacionais em tela cheia, com data/hora da última coleta e CTA claro quando não houver coleta agendada.
 - O atual "Painel" (score, postura, top riscos) vira a segunda aba ("Postura").
@@ -41,14 +41,16 @@ Um HTML autocontido (CSS inline, sem dependências externas), encaminhável por 
 - Estados vazios que ensinam: 1ª coleta → "sua timeline nasce amanhã, na 2ª coleta — agende agora" com botão direto para agendamento; sem indicadores → link para ativá-los no perfil.
 - Esforço: M (2–4 dias, só `wwwroot`).
 
-### 3. Primeira coleta que impressiona sozinha
+### 3. Primeira coleta que impressiona sozinha — CONCLUÍDO (2026-07-20)
 
 - Garantir que score + findings + indicadores aparecem com força na 1ª coleta (a timeline é a única coisa que exige 2).
 - Ao fim da 1ª coleta, tela de resultado: "Encontramos N riscos, seu score é X — exporte o relatório / agende a coleta diária" (conecta os itens 1 e 2).
 - Remover campo "Operador" do wizard (usar o usuário da sessão — hoje `AuthEndpoints` já dá a identidade).
 - Esforço: S (1–2 dias).
 
-### 4. Modo demonstração (ver sem apontar para o AD real)
+### 4. Modo demonstração (ver sem apontar para o AD real) — CONCLUÍDO (2026-07-20)
+
+Implementação: fixture frontend (`wwwroot/demo-data.js`, domínio fictício `corp.exemplo.local`) interceptada no `getJson` — em vez de data root temporário — para zero risco ao banco real; botão no login, banner fixo "MODO DEMO", mutações bloqueadas com aviso.
 
 - Fixture de dados sintéticos (domínio fictício com ~500 objetos, riscos e 2 "coletas" para a timeline ter conteúdo) embutida no binário.
 - Botão discreto no login/primeiro uso: "Explorar com dados de exemplo" → carrega num data root temporário isolado (o service já aceita `--Direnix:Storage:DataRoot`), banner permanente "MODO DEMO" e botão sair.
