@@ -25,6 +25,7 @@ const I18N = {
     "field.servicePrincipalName": "SPN", "field.memberOf": "Grupos (qtd.)", "field.description": "Descrição",
     "field.managedBy": "Responsável", "field.memberCount": "Membros", "field.versionNumber": "Versão", "field.flags": "Flags", "field.gPLink": "Vínculos de GPO",
     "topbar.refresh": "Atualizar", "topbar.new": "Nova avaliação",
+    "topbar.report": "Relatório", "export.csv": "Exportar CSV",
     "sub.overview": "Visão consolidada do ambiente avaliado.",
     "sub.collect": "Alvo, perfil e execução somente leitura contra o Active Directory.",
     "sub.findings": "Indicadores de exposição, evidência e ação recomendada.",
@@ -147,6 +148,7 @@ const I18N = {
     "field.servicePrincipalName": "SPN", "field.memberOf": "Groups (count)", "field.description": "Description",
     "field.managedBy": "Owner", "field.memberCount": "Members", "field.versionNumber": "Version", "field.flags": "Flags", "field.gPLink": "GPO links",
     "topbar.refresh": "Refresh", "topbar.new": "New assessment",
+    "topbar.report": "Report", "export.csv": "Export CSV",
     "sub.overview": "Consolidated view of the assessed environment.",
     "sub.collect": "Target, profile and read-only execution against Active Directory.",
     "sub.findings": "Exposure indicators, evidence and recommended action.",
@@ -1293,6 +1295,13 @@ async function pollRun(jobId) {
 // ---------------- wiring ----------------
 document.querySelectorAll(".nav-tab").forEach((b) => b.addEventListener("click", () => activateView(b.dataset.view)));
 byId("refresh-button")?.addEventListener("click", refresh);
+byId("report-button")?.addEventListener("click", () => { window.location = `/api/v1/reports/summary?lang=${lang}`; });
+byId("findings-csv")?.addEventListener("click", () => {
+  const params = new URLSearchParams({ view: findingsState.view, lang });
+  if (findingsState.category) params.set("category", findingsState.category);
+  window.location = `/api/v1/reports/findings.csv?${params}`;
+});
+byId("inventory-csv")?.addEventListener("click", () => { window.location = `/api/v1/reports/inventory.csv?lang=${lang}`; });
 byId("top-new-collection-button")?.addEventListener("click", () => activateView("collect"));
 byId("probe-button")?.addEventListener("click", probeDirectory);
 byId("start-collection-button")?.addEventListener("click", startCollection);

@@ -100,6 +100,7 @@ app.MapSystemEndpoints();
 app.MapProductApplicationEndpoints();
 app.MapCollectionEndpoints();
 app.MapFindingsEndpoints();
+app.MapReportEndpoints();
 app.MapAuthEndpoints();
 app.MapScheduleEndpoints();
 app.MapFallbackToFile("index.html");

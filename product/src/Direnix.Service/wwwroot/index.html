@@ -47,6 +47,7 @@
           </div>
           <button class="icon-button" type="button" id="theme-toggle" title="Tema">◐</button>
           <button class="icon-button" type="button" id="lang-toggle" title="Idioma">PT</button>
+          <button class="secondary-button" type="button" id="report-button" data-i18n="topbar.report">Relatório</button>
           <button class="secondary-button" type="button" id="refresh-button" data-i18n="topbar.refresh">Atualizar</button>
           <button class="primary-button" type="button" id="top-new-collection-button" data-i18n="topbar.new">Nova avaliacao</button>
           <button class="icon-button" type="button" id="logout-button" title="Sair" data-i18n-title="auth.logout">⎋</button>
@@ -192,6 +193,7 @@
           <div class="findings-actions" id="findings-actions">
             <button class="secondary-button" type="button" id="reassess-selected" disabled data-i18n="reassess.selected">Reavaliar selecionados</button>
             <button class="secondary-button" type="button" id="reassess-all" data-i18n="reassess.all">Reavaliar todos (na lista)</button>
+            <button class="secondary-button" type="button" id="findings-csv" data-i18n="export.csv">Exportar CSV</button>
           </div>
           <table class="data-table sortable">
             <thead><tr>
@@ -243,6 +245,9 @@
 
       <!-- INVENTARIO -->
       <section class="view" id="view-inventory">
+        <div class="findings-actions">
+          <button class="secondary-button" type="button" id="inventory-csv" data-i18n="export.csv">Exportar CSV</button>
+        </div>
         <div class="inventory-grid" id="inventory-grid"></div>
       </section>
 
