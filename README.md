@@ -1,132 +1,71 @@
-﻿# Direnix
+# Direnix
 
-Produto Windows para avaliacao, higiene e governanca de Active Directory.
+**Free, open-source daily identity operations for Active Directory.**
 
-## Direcao Atual
+Direnix answers, in under 30 seconds every morning: **what changed in my AD since yesterday, what is at risk, and what should I do next** — without ever querying the domain from the UI, without agents on domain controllers, and without your data leaving the machine.
 
-Direnix nao e mais um pacote de scripts. A base de produto fica em:
+> Point-in-time AD audit tools (PingCastle, Purple Knight) give you a great *photo* once a quarter. Direnix is the *film*: a scheduled read-only collection, a change timeline, daily operational indicators and an Identity Score you watch evolve.
 
-```text
-product/
-```
+## What you get
 
-Componentes ativos:
+- **Today view** — the daily rounds: what changed since yesterday (new privileged members, dangerous flags, created/deleted objects, SPN changes…), passwords expiring, accounts locked out, new risks.
+- **Identity Score & Tier 0 score** — posture at a glance, with drill-down into ~40 rules across hygiene, privileged access, hardening and governance.
+- **Risk workbench** — each finding ships with evidence, manual remediation steps and PowerShell in two stages (*preview* simulates, *apply* executes — you copy and run them, Direnix never writes to AD).
+- **Exceptions with governance** — accept a risk with owner, justification and expiry date; full local audit trail of every action.
+- **Operational indicators** — daily counters (passwords expiring/expired, locked accounts, accounts about to expire) plus **custom indicators**: paste your own LDAP filter (or PowerShell `Get-AD*` query — it is translated, never executed) and it runs with every collection.
+- **Exportable report** — a self-contained HTML report (score, top risks, indicators, changes) you can e-mail to your boss, plus CSV exports for Excel.
+- **Scheduled collection with gMSA** — daily/weekly collection under a group Managed Service Account via Kerberos/LDAPS; no password stored anywhere.
+- **Demo mode** — click *"Explore with sample data"* on the login screen and browse a fictional domain before pointing it at anything real.
+- Portuguese and English UI, light and dark themes.
 
-- `product/src/Direnix.Service`: backend ASP.NET Core hospedado como Windows Service.
-- `product/src/Direnix.Service/wwwroot`: portal web local servido pelo proprio service.
-- `product/src/Direnix.Core`: contratos de dominio, RBAC, auditoria, storage e coleta.
-- `product/src/Direnix.Infrastructure`: SQLCipher, DPAPI e conectividade LDAP/LDAPS.
-- `product/installer/Direnix.Msi`: instalador MSI via WiX/MSBuild.
+## Security & privacy, in one paragraph
 
-O prototipo PowerShell/HTML foi arquivado como referencia historica em:
+Direnix is **read-only against AD** (LDAP/LDAPS searches only, LDAPS by default), runs on any domain-joined Windows machine (**not** on a DC), stores everything in a **local SQLCipher-encrypted database** with the key protected by Windows **DPAPI**, never persists the AD credential you type, and has **zero telemetry and zero egress** — nothing leaves your machine. The full write-up is in [docs/SECURITY_AND_PRIVACY.md](docs/SECURITY_AND_PRIVACY.md). And because it is MIT-licensed open source, you can audit every line of what it does.
 
-```text
-legacy/powershell-prototype/
-```
+## Quickstart (5 minutes)
 
-Esse legado nao deve ser usado para instalacao, validacao de produto ou entrega em VM.
+1. Download `Direnix-x.y.z.msi` from [Releases](../../releases).
+2. Install on a domain-joined Windows machine (Windows Server 2019+ or Windows 10/11):
+   ```powershell
+   msiexec /i Direnix-0.8.0.msi
+   ```
+   > The MSI is not code-signed yet, so SmartScreen will warn you. Verify the SHA-256 hash published on the release page, then choose *More info → Run anyway*.
+3. Open the portal at `http://127.0.0.1:8787/` (or Start Menu → Direnix → Direnix Portal) and create the local administrator.
+4. Run the first assessment: point it at a DC over LDAPS with any **read-only domain account** (Domain Admin is *not* required).
+5. Tomorrow, after the second collection, the *Today* view starts showing what changed. Enable the daily schedule (ideally with a gMSA) and make it your morning coffee tab.
 
-## Build
+Just looking? Click **"Explore with sample data"** on the login screen — no AD, no admin, no risk.
 
-Pre-requisitos no host de desenvolvimento:
+## Requirements
 
-- .NET SDK 8 x64.
-- Fonte NuGet `nuget.org` habilitada.
+- Windows x64, domain-joined (workstation or member server — do **not** install on a domain controller).
+- Network access to a DC on port 636 (LDAPS, default) or 389 (LDAP).
+- A domain account with ordinary read permissions for collections.
+- Nothing to install on DCs, no schema changes, no agents.
 
-Build do produto:
-
-```powershell
-Set-Location E:\ProjetoAD\product
-dotnet restore .\Direnix.Product.sln
-dotnet build .\Direnix.Product.sln -c Release /nr:false
-dotnet build .\installer\Direnix.Msi\Direnix.Msi.wixproj -c Release /nr:false
-```
-
-Artefato principal:
-
-```text
-E:\ProjetoAD\product\installer\Direnix.Msi\bin\x64\Release\Direnix.msi
-```
-
-## Instalar Em VM
-
-Copie o MSI para a VM e execute em um terminal administrativo:
+## Building from source
 
 ```powershell
-msiexec /i C:\Temp\Direnix.msi /l*v C:\Temp\Direnix-install.log
+# .NET 8 SDK required
+cd product
+dotnet build .\Direnix.Product.sln -c Release
+dotnet test .\tests\Direnix.Core.Tests\Direnix.Core.Tests.csproj -c Release
+
+# MSI (WiX 5, downloaded automatically via NuGet)
+dotnet build .\installer\Direnix.Msi\Direnix.Msi.wixproj -c Release
 ```
 
-O MSI instala:
+Architecture and design docs live in [`docs/`](docs/) (currently mostly in Portuguese): storage schema, rule catalog, collection scope, UX architecture and the [public launch plan](docs/PUBLIC_LAUNCH_PLAN.md).
 
-- `%ProgramFiles%\Direnix\Direnix.Service.exe`
-- `%ProgramFiles%\Direnix\wwwroot\`
-- `%ProgramFiles%\Direnix\DirenixPortal.url`
-- Windows Service `Direnix.Service`
-- `%ProgramData%\Direnix\Product\data`
-- `%ProgramData%\Direnix\Product\logs`
+## Roadmap
 
-## Abrir Portal
+- **v0.9** — morning digest by e-mail/webhook (Teams/Slack) after each scheduled collection; update check.
+- **Next** — Entra ID (hybrid identity) collection and correlation; trusts/sites/FSMO inventory; approval workflows.
 
-Endereco padrao:
+## Contributing & feedback
 
-```text
-http://127.0.0.1:8787/
-```
+Issues and PRs are welcome — bug reports from real AD environments are gold. If Direnix found something useful in your domain, a screenshot of your (redacted) report in an issue or a star helps more than you think.
 
-Tambem ha um atalho em:
+## License
 
-```text
-Start Menu > Direnix > Direnix Portal
-```
-
-## Remover Da VM
-
-```powershell
-msiexec /x C:\Temp\Direnix.msi /l*v C:\Temp\Direnix-uninstall.log
-```
-
-## Limpeza Da Versao Antiga Em VM
-
-Antes de instalar o MSI novo, remova restos do pacote antigo:
-
-```powershell
-sc.exe stop DirenixPortal
-sc.exe delete DirenixPortal
-Unregister-ScheduledTask -TaskName "Direnix Portal" -Confirm:$false -ErrorAction SilentlyContinue
-Remove-Item "C:\Program Files\Direnix" -Recurse -Force -ErrorAction SilentlyContinue
-Remove-Item "C:\ProgramData\Direnix" -Recurse -Force -ErrorAction SilentlyContinue
-```
-
-## Documentacao Principal
-
-- `docs/TARGET_PRODUCT_ARCHITECTURE.md`
-- `docs/PRODUCT_REPLATFORMING_PLAN.md`
-- `docs/PRODUCT_STORAGE_SCHEMA.md`
-- `docs/INSTALLER_STRATEGY.md`
-- `docs/LOCAL_DATA_SECURITY_AND_AUTH.md`
-- `docs/COLLECTION_ACCESS_AND_SCOPE.md`
-- `docs/DIRENIX_RULES_AND_INDICATORS.md`
-- `docs/OPERATIONAL_WORKBENCH_PLAN.md`
-- `docs/UX_INFORMATION_ARCHITECTURE.md`
-- `docs/DIRENIX_QA_MATRIX.md`
-
-## Estado Atual
-
-Concluido:
-
-- backend .NET compila;
-- storage SQLCipher com DPAPI e migration v1;
-- `/health/live`, `/health/ready` e `/api/v1/system/about`;
-- portal web local em `http://127.0.0.1:8787/`;
-- publish self-contained `win-x64`;
-- MSI inicial sem PowerShell, com service, portal e atalho.
-
-Pendente antes de release de produto:
-
-- bootstrap do `LocalAdmin`;
-- login local;
-- RBAC aplicado em endpoints;
-- audit log persistente;
-- fluxo de primeiro uso autenticado;
-- assinatura de codigo;
-- testes de instalacao/upgrade/uninstall em VM limpa.
+[MIT](LICENSE) © 2026 William Gerade. Built with SQLite/SQLCipher (BSD-style), ASP.NET Core and WiX — see their respective licenses.

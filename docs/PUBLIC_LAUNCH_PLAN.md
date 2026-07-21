@@ -102,17 +102,20 @@ Pendências desta frente:
 - **Domínio e handles**: registrar `direnix.com` (ou `.io`) e verificar disponibilidade do nome no GitHub antes de criar o repo público (item 9).
 - Artefatos binários antigos (MSIs compilados com a marca anterior) e o nome da pasta raiz do repositório — ver decisões pendentes.
 
-### 8b. Assinatura de código do MSI
+### 8b. Assinatura de código do MSI — ADIADO (decisão do dono, 2026-07-20)
 
-- Azure Trusted Signing (caminho mais barato para indie) integrado ao build do `Direnix.Msi.wixproj`; assinar também o `Direnix.Service.exe`.
-- Critério de aceite: instalar em VM limpa sem aviso vermelho do SmartScreen.
-- **Bloqueador absoluto do lançamento.**
+Lançamento seguirá **sem assinatura** (sem conta Azure Trusted Signing por ora). Mitigação adotada:
 
-### 9. Repositório público + licença + releases
+- SHA-256 do MSI publicado em cada release do GitHub;
+- nota transparente no README e na página Security & Privacy ("não assinado ainda; verifique o hash; SmartScreen vai avisar");
+- código aberto (MIT) como contrapeso de confiança — qualquer um audita o que o binário faz.
+- Reavaliar assinatura quando houver tração/orçamento.
 
-- Decisão do dono pendente: **modelo de "totalmente livre"** — (a) open-source (MIT/Apache-2.0) ou (b) freeware de binário com repo público só de docs/issues. Recomendação: decidir antes de criar o repo, pois muda o README.
-- GitHub: releases versionadas com changelog, MSIs saem da raiz do repo (ficam só nas releases), Issues como canal de feedback.
-- README público **em inglês** com screenshots (usar o modo demo), quickstart de 5 passos e requisitos mínimos.
+### 9. Repositório público + licença + releases — EM EXECUÇÃO (2026-07-20)
+
+- **Decidido: open-source MIT** (LICENSE na raiz), GitHub gratuito, repo `wgerade/direnix` público.
+- Releases versionadas com MSI + SHA-256; MSIs fora do repo (`*.msi` no .gitignore); Issues como canal de feedback.
+- README público **em inglês** criado (quickstart 5 passos, requisitos, posicionamento, nota SmartScreen). Screenshots do modo demo ainda pendentes (item 11).
 
 ### 10. Página "Security & Privacy" + requisitos
 
@@ -144,12 +147,11 @@ Semana 5–6: itens 6–7 (digest + updates) → release v0.9 → segunda onda d
 
 ## Decisões pendentes do dono
 
-1. Licença: open-source (MIT/Apache-2.0) vs freeware de binário.
-2. Incluir o modo portátil (item 5) na v0.8, v0.9 ou descartar.
-3. Digest: só SMTP na v0.9 ou SMTP + webhook juntos.
-4. TLD/domínio do Direnix (`.com`/`.io`) e nome do repositório GitHub.
+1. Incluir o modo portátil (item 5) na v0.9 ou descartar.
+2. Digest: só SMTP na v0.9 ou SMTP + webhook juntos.
+3. TLD/domínio próprio (`direnix.com`/`.io`) — opcional; por ora a landing é o GitHub.
 
-Decidido: nome público = **Direnix** (2026-07-20).
+Decidido: nome público = **Direnix** (2026-07-20); licença = **MIT** (2026-07-20); **sem code signing** por ora (2026-07-20); casa do projeto = GitHub gratuito `wgerade/direnix` (2026-07-20).
 
 ## Fora de escopo deste plano
 
