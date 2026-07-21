@@ -34,7 +34,9 @@ Direnix is **read-only against AD** (LDAP/LDAPS searches only, LDAPS by default)
 4. Run the first assessment: point it at a DC over LDAPS with any **read-only domain account** (Domain Admin is *not* required).
 5. Tomorrow, after the second collection, the *Today* view starts showing what changed. Enable the daily schedule (ideally with a gMSA) and make it your morning coffee tab.
 
-Just looking? Click **"Explore with sample data"** on the login screen — no AD, no admin, no risk.
+Just looking? Two zero-commitment ways to try it:
+- **Portable** — grab `DirenixPortable.exe`, double-click it. No install, no Windows service, no admin: it runs from your user profile (data in `%LOCALAPPDATA%\Direnix`), opens the portal in your browser and skips the login. Close the window to stop.
+- **Demo** — click **"Explore with sample data"** on the login screen to browse a fictional domain. No AD, no admin, no risk.
 
 ## Requirements
 

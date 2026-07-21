@@ -8,7 +8,25 @@ using Direnix.Service.Auth;
 using Direnix.Service.Configuration;
 using Direnix.Service.Endpoints;
 
-var builder = WebApplication.CreateBuilder(args);
+// Flags próprias (sem valor) são resolvidas aqui e removidas antes do provider de
+// config do host, que interpretaria "--portable" como chave e consumiria o
+// argumento seguinte como valor (quebrando, por ex., "--Direnix:Port=...").
+var isPortable = PortableModeState.Detect(args);
+var isResetAdmin = args.Any(a => string.Equals(a, "--reset-admin", StringComparison.OrdinalIgnoreCase));
+var hostArgs = args.Where(a =>
+    !string.Equals(a, "--portable", StringComparison.OrdinalIgnoreCase) &&
+    !string.Equals(a, "--reset-admin", StringComparison.OrdinalIgnoreCase)).ToArray();
+
+var builder = WebApplication.CreateBuilder(hostArgs);
+
+// Modo portátil: mesmo binário, sem Windows Service, data root por-usuário e
+// portal de sessão única (loopback) sem tela de login.
+var portable = new PortableModeState
+{
+    IsPortable = isPortable,
+    Operator = Environment.UserName
+};
+builder.Services.AddSingleton(portable);
 
 builder.Host.UseWindowsService(options =>
 {
@@ -30,6 +48,14 @@ builder.WebHost.ConfigureKestrel(options =>
 var storageOptions = builder.Configuration
     .GetSection(ProductStorageOptions.SectionName)
     .Get<ProductStorageOptions>() ?? new ProductStorageOptions();
+
+// No portátil, sem data root explícito, grava em %LOCALAPPDATA% (não precisa de
+// admin nem do serviço), em vez do %ProgramData% padrão do serviço instalado.
+var dataRootConfigured = builder.Configuration[$"{ProductStorageOptions.SectionName}:DataRoot"];
+if (portable.IsPortable && string.IsNullOrWhiteSpace(dataRootConfigured))
+{
+    storageOptions = new ProductStorageOptions { DataRoot = PortableModeState.DefaultDataRoot() };
+}
 builder.Services.AddSingleton(storageOptions);
 builder.Services.AddSingleton<IDatabaseKeyStore, WindowsDpapiDatabaseKeyStore>();
 builder.Services.AddSingleton<SqlCipherProductStore>();
@@ -67,7 +93,7 @@ using (var scope = app.Services.CreateScope())
 
 // Modo CLI: reset seguro do admin (reabre "Criar administrador" sem apagar coletas).
 // Uso (prompt elevado): Direnix.Service.exe --reset-admin
-if (args.Any(a => string.Equals(a, "--reset-admin", StringComparison.OrdinalIgnoreCase)))
+if (isResetAdmin)
 {
     using var scope = app.Services.CreateScope();
     var store = scope.ServiceProvider.GetRequiredService<IProductStore>();
@@ -106,7 +132,9 @@ app.Use(async (context, next) =>
     var isMutating = HttpMethods.IsPost(method) || HttpMethods.IsPut(method) || HttpMethods.IsDelete(method);
     var isAuthEndpoint = path.StartsWith("/api/v1/auth/", StringComparison.OrdinalIgnoreCase);
 
-    if (isApi && isMutating && !isAuthEndpoint)
+    // No modo portátil o portal é loopback + sessão única do usuário que abriu o
+    // executável: não há tela de login e o gate não se aplica.
+    if (isApi && isMutating && !isAuthEndpoint && !portable.IsPortable)
     {
         var store = context.RequestServices.GetRequiredService<IProductStore>();
         var session = await Direnix.Service.Auth.AuthEndpoints.ResolveSessionAsync(store, context, context.RequestAborted);
@@ -132,4 +160,29 @@ app.MapScheduleEndpoints();
 app.MapNotificationEndpoints();
 app.MapFallbackToFile("index.html", staticFileOptions);
 
-app.Run();
+if (portable.IsPortable)
+{
+    var portalUrl = $"http://{hostOptions.ListenAddress}:{hostOptions.Port}/";
+    Console.WriteLine($"Direnix portátil em {portalUrl} — dados em {storageOptions.DataRoot}. Feche esta janela para encerrar.");
+    await app.StartAsync();
+    OpenBrowser(portalUrl);
+    await app.WaitForShutdownAsync();
+}
+else
+{
+    app.Run();
+}
+
+// Abre o navegador padrão no portal (modo portátil). Falha é silenciosa: o
+// usuário ainda pode abrir a URL manualmente.
+static void OpenBrowser(string url)
+{
+    try
+    {
+        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+    }
+    catch
+    {
+        // Sem navegador/associação: a URL foi impressa no console.
+    }
+}

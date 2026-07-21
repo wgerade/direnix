@@ -132,6 +132,7 @@ const I18N = {
     "auth.login": "Entrar", "auth.create": "Criar administrador", "auth.sub": "Acesso ao portal de operações de identidade.", "auth.subSetup": "Primeiro acesso: defina o administrador local (senha de 8+ caracteres).", "auth.user": "Usuário", "auth.pass": "Senha", "auth.logout": "Sair", "auth.bad": "Usuário ou senha inválidos.",
     "sched.title": "Coleta automática", "sched.note": "A coleta agendada roda sob a identidade do serviço (gMSA) via Kerberos/LDAPS — nenhuma senha é armazenada.", "sched.enabled": "Habilitar", "sched.on": "Ativada", "sched.off": "Desativada", "sched.frequency": "Frequência", "sched.daily": "Diária", "sched.weekly": "Semanal", "sched.interval": "A cada N horas", "sched.time": "Horário (HH:MM)", "sched.intervalHours": "Intervalo (horas)", "sched.host": "Controlador de domínio", "sched.weekdays": "Dias da semana", "sched.profile": "Perfil de regras", "sched.activeProfile": "Perfil ativo no momento", "sched.identity": "Identidade da coleta", "sched.last": "Última execução", "sched.next": "Próxima execução", "sched.test": "Testar conectividade", "sched.saved": "Agendamento salvo.",
     "day.mon": "Seg", "day.tue": "Ter", "day.wed": "Qua", "day.thu": "Qui", "day.fri": "Sex", "day.sat": "Sáb", "day.sun": "Dom",
+    "portable.badge": "Portátil",
     "notif.title": "Digest matinal", "notif.note": "Envia o resumo da ronda (o que mudou, novos riscos, indicadores) ao fim da coleta agendada. Assim a informação chega até você — sem precisar lembrar de abrir o portal.", "notif.policy": "Quando enviar", "notif.onlyActivity": "Só quando houver atividade", "notif.always": "Sempre após a coleta", "notif.lang": "Idioma do digest", "notif.on": "Ativado", "notif.off": "Desativado", "notif.smtpTitle": "E-mail (SMTP)", "notif.smtpEnabled": "Habilitar e-mail", "notif.smtpHost": "Servidor SMTP", "notif.smtpPort": "Porta", "notif.smtpTls": "STARTTLS", "notif.smtpUser": "Usuário", "notif.smtpPass": "Senha", "notif.passPlaceholder": "(inalterada)", "notif.smtpFrom": "Remetente", "notif.smtpTo": "Destinatários", "notif.webhookTitle": "Webhook (Teams/Slack/automações)", "notif.webhookEnabled": "Habilitar webhook", "notif.webhookUrl": "URL do webhook", "notif.test": "Enviar teste agora", "notif.last": "Último envio", "notif.saved": "Notificações salvas.", "notif.testing": "Enviando teste…", "notif.skipped": "Pulado", "notif.noChannel": "Nenhum canal habilitado.",
     "svc.title": "Configuração do serviço", "svc.note": "Define como o serviço Windows roda. Para coleta automática segura, use uma gMSA (só o nome da conta; o Windows gerencia a senha).", "svc.curIdentity": "Identidade atual", "svc.curStartup": "Inicialização atual", "svc.startup": "Tipo de inicialização", "svc.startAuto": "Automático", "svc.startDelayed": "Automático (atraso)", "svc.startManual": "Manual", "svc.identity": "Identidade (Log On As)", "svc.idLocalSystem": "LocalSystem", "svc.idGmsa": "Conta gerenciada (gMSA)", "svc.account": "Conta gMSA", "svc.apply": "Aplicar configuração", "svc.restart": "Reinicie o serviço para a nova conta valer.",
     "exc.expires": "Expira em", "exc.empty": "Nenhuma exceção registrada", "exc.remove": "Remover", "exc.newName": "Nome do novo perfil:"
@@ -266,6 +267,7 @@ const I18N = {
     "auth.login": "Sign in", "auth.create": "Create administrator", "auth.sub": "Access to the identity operations portal.", "auth.subSetup": "First run: set the local administrator (8+ char password).", "auth.user": "Username", "auth.pass": "Password", "auth.logout": "Sign out", "auth.bad": "Invalid username or password.",
     "sched.title": "Automatic collection", "sched.note": "Scheduled collection runs as the service identity (gMSA) over Kerberos/LDAPS — no password is stored.", "sched.enabled": "Enabled", "sched.on": "On", "sched.off": "Off", "sched.frequency": "Frequency", "sched.daily": "Daily", "sched.weekly": "Weekly", "sched.interval": "Every N hours", "sched.time": "Time (HH:MM)", "sched.intervalHours": "Interval (hours)", "sched.host": "Domain controller", "sched.profile": "Rule profile", "sched.activeProfile": "Currently active profile", "sched.weekdays": "Weekdays", "sched.identity": "Collection identity", "sched.last": "Last run", "sched.next": "Next run", "sched.test": "Test connectivity", "sched.saved": "Schedule saved.",
     "day.mon": "Mon", "day.tue": "Tue", "day.wed": "Wed", "day.thu": "Thu", "day.fri": "Fri", "day.sat": "Sat", "day.sun": "Sun",
+    "portable.badge": "Portable",
     "notif.title": "Morning digest", "notif.note": "Sends the rounds summary (what changed, new risks, indicators) at the end of the scheduled collection. The information reaches you — no need to remember to open the portal.", "notif.policy": "When to send", "notif.onlyActivity": "Only when there is activity", "notif.always": "Always after collection", "notif.lang": "Digest language", "notif.on": "On", "notif.off": "Off", "notif.smtpTitle": "Email (SMTP)", "notif.smtpEnabled": "Enable email", "notif.smtpHost": "SMTP server", "notif.smtpPort": "Port", "notif.smtpTls": "STARTTLS", "notif.smtpUser": "Username", "notif.smtpPass": "Password", "notif.passPlaceholder": "(unchanged)", "notif.smtpFrom": "From", "notif.smtpTo": "Recipients", "notif.webhookTitle": "Webhook (Teams/Slack/automations)", "notif.webhookEnabled": "Enable webhook", "notif.webhookUrl": "Webhook URL", "notif.test": "Send test now", "notif.last": "Last send", "notif.saved": "Notifications saved.", "notif.testing": "Sending test…", "notif.skipped": "Skipped", "notif.noChannel": "No channel enabled.",
     "svc.title": "Service configuration", "svc.note": "Defines how the Windows service runs. For secure scheduled collection, use a gMSA (account name only; Windows manages the password).", "svc.curIdentity": "Current identity", "svc.curStartup": "Current startup", "svc.startup": "Startup type", "svc.startAuto": "Automatic", "svc.startDelayed": "Automatic (delayed)", "svc.startManual": "Manual", "svc.identity": "Identity (Log On As)", "svc.idLocalSystem": "LocalSystem", "svc.idGmsa": "Managed account (gMSA)", "svc.account": "gMSA account", "svc.apply": "Apply configuration", "svc.restart": "Restart the service for the new account to take effect.",
     "exc.expires": "Expires", "exc.empty": "No exceptions registered", "exc.remove": "Remove", "exc.newName": "New profile name:"
@@ -576,6 +578,8 @@ function sevBadge(s) { return `<span class="sev-badge ${sevClass(s)}">${t("sev."
 
 // Modo demo: GETs respondem do fixture local (demo-data.js); nada sai para a rede.
 let demoMode = sessionStorage.getItem("dx-demo") === "1";
+// Modo portátil: sessão única sem login (definido por /auth/me).
+let portableMode = false;
 async function getJson(url) {
   if (demoMode) {
     const d = window.DEMO_RESOLVE ? window.DEMO_RESOLVE(url) : null;
@@ -865,7 +869,7 @@ function render() {
   const domain = shell?.dataContext?.domainName;
   const coverage = shell?.dataContext?.coverageMode ?? "NoCollection";
 
-  text("brand-mode", shell?.product?.mode ?? "LocalSecure");
+  text("brand-mode", portableMode ? t("portable.badge") : (shell?.product?.mode ?? "LocalSecure"));
   text("environment-title", hasRun ? (domain ? `${t("env.domain")}: ${domain}` : t("env.domain")) : t("env.none"));
   text("environment-summary", hasRun ? `${shell?.activeFindings ?? 0} ${t("env.risksFrom")}` : t("env.noneSub"));
   text("coverage-mode", t("coverage." + coverage));
@@ -1523,6 +1527,12 @@ async function bootAuth() {
   if (demoMode) { sessionUser = "demo"; const b = byId("demo-banner"); if (b) b.hidden = false; startApp(); return; }
   try {
     const me = await getJson(`${endpoints.auth}/me`);
+    if (me.portable) {
+      // Portátil: sessão única, sem login. Selo na marca e sem botão Sair.
+      portableMode = true;
+      const sub = byId("brand-mode"); if (sub) sub.textContent = t("portable.badge");
+      const lo = byId("logout-button"); if (lo) lo.hidden = true;
+    }
     if (me.authenticated) { sessionUser = me.username || null; startApp(); return; }
     showAuth(me.needsSetup === true);
   } catch { showAuth(false); }

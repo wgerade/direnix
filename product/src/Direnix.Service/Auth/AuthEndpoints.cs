@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using Direnix.Core.Auth;
 using Direnix.Core.Storage;
+using Direnix.Service.Configuration;
 using Direnix.Service.Endpoints;
 
 namespace Direnix.Service.Auth;
@@ -17,15 +18,22 @@ public static class AuthEndpoints
 
     public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet("/api/v1/auth/me", async (IProductStore store, HttpContext http, CancellationToken ct) =>
+        endpoints.MapGet("/api/v1/auth/me", async (IProductStore store, HttpContext http, PortableModeState portable, CancellationToken ct) =>
         {
+            // Portátil: sessão única implícita, sem setup/login.
+            if (portable.IsPortable)
+            {
+                return Results.Ok(new { needsSetup = false, authenticated = true, username = portable.Operator, portable = true });
+            }
+
             var needsSetup = await store.GetUserCountAsync(ct) == 0;
             var session = await ResolveSessionAsync(store, http, ct);
             return Results.Ok(new
             {
                 needsSetup,
                 authenticated = session is not null,
-                username = session?.UserId
+                username = session?.UserId,
+                portable = false
             });
         });
 

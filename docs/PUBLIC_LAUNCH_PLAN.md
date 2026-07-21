@@ -57,11 +57,12 @@ Implementação: fixture frontend (`wwwroot/demo-data.js`, domínio fictício `c
 - Serve também para screenshots/vídeo do GTM sem expor dados reais.
 - Esforço: M (2–4 dias).
 
-### 5. (Opcional, avaliar depois de 1–4) Modo portátil "avaliação única"
+### 5. Modo portátil "avaliação única" — CONCLUÍDO (2026-07-21)
 
-Um `DirenixPortable.exe` (mesmo Service em modo console, data root em `%LOCALAPPDATA%`, abre o browser, não instala serviço) para reduzir o atrito do primeiro contato ao nível do PingCastle. Adiar se o modo demo + MSI assinado se mostrarem suficientes.
+`DirenixPortable.exe`: mesmo binário do Service, comportamento ativado pelo nome do exe (ou `--portable`). Não instala serviço, data root por-usuário em `%LOCALAPPDATA%\Direnix\Portable\data` (sem admin), abre o navegador no portal ao subir, e portal de sessão única (loopback) sem tela de login. Publicação self-contained single-file via `product/scripts/build-portable.ps1`.
 
-- Esforço: M–L (3–6 dias, novo profile de publish + ajustes de bootstrap/auth para modo efêmero).
+- Impl: `PortableModeState` (detecção por flag/nome do exe), Program.cs (data root, StartAsync+OpenBrowser+WaitForShutdown, gate de auth desativado no portátil, flags próprias removidas dos args antes do provider de config), `/auth/me` retorna `portable:true`, front pula login e mostra selo "Portátil".
+- Verificado: escuta na porta configurada, `/auth/me` portable, mutação sem sessão (200), portal serve, DB criado em `%LOCALAPPDATA%`.
 
 ---
 
