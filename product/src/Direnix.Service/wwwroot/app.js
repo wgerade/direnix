@@ -132,6 +132,7 @@ const I18N = {
     "auth.login": "Entrar", "auth.create": "Criar administrador", "auth.sub": "Acesso ao portal de operações de identidade.", "auth.subSetup": "Primeiro acesso: defina o administrador local (senha de 8+ caracteres).", "auth.user": "Usuário", "auth.pass": "Senha", "auth.logout": "Sair", "auth.bad": "Usuário ou senha inválidos.",
     "sched.title": "Coleta automática", "sched.note": "A coleta agendada roda sob a identidade do serviço (gMSA) via Kerberos/LDAPS — nenhuma senha é armazenada.", "sched.enabled": "Habilitar", "sched.on": "Ativada", "sched.off": "Desativada", "sched.frequency": "Frequência", "sched.daily": "Diária", "sched.weekly": "Semanal", "sched.interval": "A cada N horas", "sched.time": "Horário (HH:MM)", "sched.intervalHours": "Intervalo (horas)", "sched.host": "Controlador de domínio", "sched.weekdays": "Dias da semana", "sched.profile": "Perfil de regras", "sched.activeProfile": "Perfil ativo no momento", "sched.identity": "Identidade da coleta", "sched.last": "Última execução", "sched.next": "Próxima execução", "sched.test": "Testar conectividade", "sched.saved": "Agendamento salvo.",
     "day.mon": "Seg", "day.tue": "Ter", "day.wed": "Qua", "day.thu": "Qui", "day.fri": "Sex", "day.sat": "Sáb", "day.sun": "Dom",
+    "notif.title": "Digest matinal", "notif.note": "Envia o resumo da ronda (o que mudou, novos riscos, indicadores) ao fim da coleta agendada. Assim a informação chega até você — sem precisar lembrar de abrir o portal.", "notif.policy": "Quando enviar", "notif.onlyActivity": "Só quando houver atividade", "notif.always": "Sempre após a coleta", "notif.lang": "Idioma do digest", "notif.on": "Ativado", "notif.off": "Desativado", "notif.smtpTitle": "E-mail (SMTP)", "notif.smtpEnabled": "Habilitar e-mail", "notif.smtpHost": "Servidor SMTP", "notif.smtpPort": "Porta", "notif.smtpTls": "STARTTLS", "notif.smtpUser": "Usuário", "notif.smtpPass": "Senha", "notif.passPlaceholder": "(inalterada)", "notif.smtpFrom": "Remetente", "notif.smtpTo": "Destinatários", "notif.webhookTitle": "Webhook (Teams/Slack/automações)", "notif.webhookEnabled": "Habilitar webhook", "notif.webhookUrl": "URL do webhook", "notif.test": "Enviar teste agora", "notif.last": "Último envio", "notif.saved": "Notificações salvas.", "notif.testing": "Enviando teste…", "notif.skipped": "Pulado", "notif.noChannel": "Nenhum canal habilitado.",
     "svc.title": "Configuração do serviço", "svc.note": "Define como o serviço Windows roda. Para coleta automática segura, use uma gMSA (só o nome da conta; o Windows gerencia a senha).", "svc.curIdentity": "Identidade atual", "svc.curStartup": "Inicialização atual", "svc.startup": "Tipo de inicialização", "svc.startAuto": "Automático", "svc.startDelayed": "Automático (atraso)", "svc.startManual": "Manual", "svc.identity": "Identidade (Log On As)", "svc.idLocalSystem": "LocalSystem", "svc.idGmsa": "Conta gerenciada (gMSA)", "svc.account": "Conta gMSA", "svc.apply": "Aplicar configuração", "svc.restart": "Reinicie o serviço para a nova conta valer.",
     "exc.expires": "Expira em", "exc.empty": "Nenhuma exceção registrada", "exc.remove": "Remover", "exc.newName": "Nome do novo perfil:"
   },
@@ -265,6 +266,7 @@ const I18N = {
     "auth.login": "Sign in", "auth.create": "Create administrator", "auth.sub": "Access to the identity operations portal.", "auth.subSetup": "First run: set the local administrator (8+ char password).", "auth.user": "Username", "auth.pass": "Password", "auth.logout": "Sign out", "auth.bad": "Invalid username or password.",
     "sched.title": "Automatic collection", "sched.note": "Scheduled collection runs as the service identity (gMSA) over Kerberos/LDAPS — no password is stored.", "sched.enabled": "Enabled", "sched.on": "On", "sched.off": "Off", "sched.frequency": "Frequency", "sched.daily": "Daily", "sched.weekly": "Weekly", "sched.interval": "Every N hours", "sched.time": "Time (HH:MM)", "sched.intervalHours": "Interval (hours)", "sched.host": "Domain controller", "sched.profile": "Rule profile", "sched.activeProfile": "Currently active profile", "sched.weekdays": "Weekdays", "sched.identity": "Collection identity", "sched.last": "Last run", "sched.next": "Next run", "sched.test": "Test connectivity", "sched.saved": "Schedule saved.",
     "day.mon": "Mon", "day.tue": "Tue", "day.wed": "Wed", "day.thu": "Thu", "day.fri": "Fri", "day.sat": "Sat", "day.sun": "Sun",
+    "notif.title": "Morning digest", "notif.note": "Sends the rounds summary (what changed, new risks, indicators) at the end of the scheduled collection. The information reaches you — no need to remember to open the portal.", "notif.policy": "When to send", "notif.onlyActivity": "Only when there is activity", "notif.always": "Always after collection", "notif.lang": "Digest language", "notif.on": "On", "notif.off": "Off", "notif.smtpTitle": "Email (SMTP)", "notif.smtpEnabled": "Enable email", "notif.smtpHost": "SMTP server", "notif.smtpPort": "Port", "notif.smtpTls": "STARTTLS", "notif.smtpUser": "Username", "notif.smtpPass": "Password", "notif.passPlaceholder": "(unchanged)", "notif.smtpFrom": "From", "notif.smtpTo": "Recipients", "notif.webhookTitle": "Webhook (Teams/Slack/automations)", "notif.webhookEnabled": "Enable webhook", "notif.webhookUrl": "Webhook URL", "notif.test": "Send test now", "notif.last": "Last send", "notif.saved": "Notifications saved.", "notif.testing": "Sending test…", "notif.skipped": "Skipped", "notif.noChannel": "No channel enabled.",
     "svc.title": "Service configuration", "svc.note": "Defines how the Windows service runs. For secure scheduled collection, use a gMSA (account name only; Windows manages the password).", "svc.curIdentity": "Current identity", "svc.curStartup": "Current startup", "svc.startup": "Startup type", "svc.startAuto": "Automatic", "svc.startDelayed": "Automatic (delayed)", "svc.startManual": "Manual", "svc.identity": "Identity (Log On As)", "svc.idLocalSystem": "LocalSystem", "svc.idGmsa": "Managed account (gMSA)", "svc.account": "gMSA account", "svc.apply": "Apply configuration", "svc.restart": "Restart the service for the new account to take effect.",
     "exc.expires": "Expires", "exc.empty": "No exceptions registered", "exc.remove": "Remove", "exc.newName": "New profile name:"
   }
@@ -600,7 +602,8 @@ const endpoints = {
   changes: "/api/v1/changes", changesSummary: "/api/v1/changes/summary",
   search: "/api/v1/search", objectDetail: "/api/v1/objects/detail",
   auth: "/api/v1/auth", schedule: "/api/v1/schedule",
-  indicators: "/api/v1/indicators", indicatorsCatalog: "/api/v1/indicators/catalog", indicatorValidate: "/api/v1/indicators/validate"
+  indicators: "/api/v1/indicators", indicatorsCatalog: "/api/v1/indicators/catalog", indicatorValidate: "/api/v1/indicators/validate",
+  notifications: "/api/v1/notifications"
 };
 
 const CHANGE_LABELS = {
@@ -1530,6 +1533,7 @@ async function startApp() {
   refresh();
   loadSchedule();
   loadServiceStatus();
+  loadNotifications();
 }
 async function submitAuth() {
   const username = byId("auth-username")?.value.trim();
@@ -1615,6 +1619,75 @@ async function testSchedule() {
     text("sched-result", `${r.ok ? "OK" : "—"} · ${r.identity} · ${r.namingContext || (r.errors || []).join(" ")}`);
   } catch (e) { text("sched-result", e.message); }
 }
+
+// ---------------- notifications (digest) ----------------
+function notifOutcomeText(o) {
+  if (!o) return "—";
+  const when = o.at ? fmtDate(o.at) : "";
+  if (o.skipped) return `${when} · ${t("notif.skipped")}: ${o.skipReason || ""}`.trim();
+  const parts = (o.results || []).map((r) => `${r.channel}: ${r.ok ? "OK" : "—"}${r.ok ? "" : " (" + (r.detail || "") + ")"}`);
+  return `${when} · ${parts.join(" · ") || "—"}`.trim();
+}
+async function loadNotifications() {
+  try {
+    const c = await getJson(`${endpoints.notifications}/config`);
+    const set = (id, v) => { const el = byId(id); if (el) el.value = v; };
+    set("notif-policy", c.policy || "OnlyWhenActivity");
+    set("notif-lang", c.lang || "pt");
+    set("notif-smtp-enabled", c.smtpEnabled ? "true" : "false");
+    set("notif-smtp-host", c.smtpHost || "");
+    set("notif-smtp-port", c.smtpPort || 587);
+    set("notif-smtp-tls", c.smtpUseStartTls ? "true" : "false");
+    set("notif-smtp-user", c.smtpUsername || "");
+    set("notif-smtp-from", c.smtpFrom || "");
+    set("notif-smtp-to", c.smtpTo || "");
+    set("notif-webhook-enabled", c.webhookEnabled ? "true" : "false");
+    set("notif-webhook-url", c.webhookUrl || "");
+    // Senha nunca volta do servidor: placeholder indica se já existe uma salva.
+    const pass = byId("notif-smtp-pass");
+    if (pass) { pass.value = ""; pass.placeholder = c.smtpHasPassword ? "••••••••" : t("notif.passPlaceholder"); }
+    const on = c.smtpEnabled || c.webhookEnabled;
+    text("notif-tag", on ? t("notif.on") : t("notif.off"));
+    text("notif-last", notifOutcomeText(c.lastOutcome));
+  } catch {}
+}
+function notifBody() {
+  const pass = byId("notif-smtp-pass")?.value ?? "";
+  return {
+    smtpEnabled: byId("notif-smtp-enabled").value === "true",
+    smtpHost: byId("notif-smtp-host").value.trim(),
+    smtpPort: Number(byId("notif-smtp-port").value) || 587,
+    smtpUseStartTls: byId("notif-smtp-tls").value === "true",
+    smtpUsername: byId("notif-smtp-user").value.trim(),
+    // "" no campo = manter a senha atual (null); qualquer valor = definir nova.
+    smtpPassword: pass.length > 0 ? pass : null,
+    smtpFrom: byId("notif-smtp-from").value.trim(),
+    smtpTo: byId("notif-smtp-to").value.trim(),
+    webhookEnabled: byId("notif-webhook-enabled").value === "true",
+    webhookUrl: byId("notif-webhook-url").value.trim(),
+    policy: byId("notif-policy").value,
+    lang: byId("notif-lang").value
+  };
+}
+async function saveNotifications() {
+  try {
+    await sendJson(`${endpoints.notifications}/config`, "PUT", notifBody());
+    text("notif-result", t("notif.saved"));
+    await loadNotifications();
+  } catch (e) { text("notif-result", e.message); }
+}
+async function testNotifications() {
+  text("notif-result", t("notif.testing"));
+  try {
+    // Salva antes de testar, para o envio usar a config atual da tela.
+    await sendJson(`${endpoints.notifications}/config`, "PUT", notifBody());
+    const o = await postJson(`${endpoints.notifications}/test`, {});
+    text("notif-result", notifOutcomeText(o));
+    await loadNotifications();
+  } catch (e) { text("notif-result", e.message); }
+}
+byId("notif-save")?.addEventListener("click", saveNotifications);
+byId("notif-test")?.addEventListener("click", testNotifications);
 
 // ---------------- service config ----------------
 function svcIdentityUi() {

@@ -1,9 +1,7 @@
-using System.Reflection;
 using System.Text;
 using Direnix.Core.Reporting;
 using Direnix.Core.Storage;
-using Direnix.Service.Configuration;
-using Microsoft.Extensions.Options;
+using Direnix.Service.Reporting;
 
 namespace Direnix.Service.Endpoints;
 
@@ -19,11 +17,11 @@ public static class ReportEndpoints
         group.MapGet("/summary", async (
             IProductStore store,
             HttpContext http,
-            IOptions<ProductHostOptions> hostOptions,
+            ReportModelBuilder modelBuilder,
             string? lang,
             CancellationToken cancellationToken) =>
         {
-            var model = await BuildModelAsync(store, hostOptions.Value, cancellationToken);
+            var model = await modelBuilder.BuildAsync(cancellationToken);
             var html = ReportBuilder.BuildHtml(model, NormalizeLang(lang));
             await PortalAudit.LogAsync(store, http, "ReportExported", "Report", "summary", "Success");
             return Results.File(
@@ -70,45 +68,4 @@ public static class ReportEndpoints
 
     private static string NormalizeLang(string? lang) =>
         string.Equals(lang, "en", StringComparison.OrdinalIgnoreCase) ? "en" : "pt";
-
-    private static async Task<ReportModel> BuildModelAsync(
-        IProductStore store,
-        ProductHostOptions hostOptions,
-        CancellationToken cancellationToken)
-    {
-        var dashboard = await store.GetDashboardAsync(cancellationToken);
-        var topFindings = await store.GetFindingsAsync("active", null, 15, 0, cancellationToken);
-        var indicators = await store.GetLatestIndicatorsAsync(cancellationToken);
-        var changeSummary = await store.GetChangeSummaryAsync(24, cancellationToken);
-        var newFindings = await store.CountNewFindingsAsync(24, cancellationToken);
-
-        var version = Assembly.GetExecutingAssembly()
-            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
-            ?? Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)
-            ?? "dev";
-        // InformationalVersion pode vir com sufixo de build (+hash); mostra so a parte semantica.
-        var plusIndex = version.IndexOf('+');
-        if (plusIndex > 0)
-        {
-            version = version[..plusIndex];
-        }
-
-        return new ReportModel(
-            DateTimeOffset.UtcNow,
-            version,
-            $"http://{hostOptions.ListenAddress}:{hostOptions.Port}/",
-            dashboard.LatestRun?.DomainName,
-            dashboard.LatestRun?.CoverageMode ?? "NoCollection",
-            dashboard.LatestRun?.CompletedAt,
-            dashboard.IdentityScore,
-            dashboard.Tier0Score,
-            dashboard.ActiveFindings,
-            dashboard.SeverityBreakdown,
-            dashboard.CategoryBreakdown,
-            topFindings,
-            indicators,
-            changeSummary,
-            newFindings,
-            dashboard.Inventory);
-    }
 }

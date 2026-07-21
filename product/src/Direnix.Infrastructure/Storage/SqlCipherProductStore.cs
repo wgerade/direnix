@@ -1211,6 +1211,30 @@ public sealed class SqlCipherProductStore : IProductStore, ISchemaMigrator
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
 
+    public async Task<string?> GetSettingAsync(string key, CancellationToken cancellationToken)
+    {
+        using var connection = await OpenConnectionAsync(cancellationToken);
+        await using var command = connection.CreateCommand();
+        command.CommandText = "SELECT setting_value FROM app_settings WHERE setting_key = $key;";
+        command.Parameters.AddWithValue("$key", key);
+        return await command.ExecuteScalarAsync(cancellationToken) as string;
+    }
+
+    public async Task SetSettingAsync(string key, string value, CancellationToken cancellationToken)
+    {
+        using var connection = await OpenConnectionAsync(cancellationToken);
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            INSERT INTO app_settings (setting_key, setting_value, updated_at)
+            VALUES ($key, $value, $now)
+            ON CONFLICT(setting_key) DO UPDATE SET setting_value = $value, updated_at = $now;
+            """;
+        command.Parameters.AddWithValue("$key", key);
+        command.Parameters.AddWithValue("$value", value);
+        command.Parameters.AddWithValue("$now", DateTimeOffset.UtcNow.ToString("O"));
+        await command.ExecuteNonQueryAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<ChangeEventRow>> GetChangesAsync(int limit, int? sinceHours, string? changeType, CancellationToken cancellationToken)
     {
         using var connection = await OpenConnectionAsync(cancellationToken);

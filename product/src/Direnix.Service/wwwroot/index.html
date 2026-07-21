@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Direnix</title>
-  <link rel="stylesheet" href="/styles.css?v=0.8.0">
+  <link rel="stylesheet" href="/styles.css?v=0.9.0-dev">
 </head>
 <body>
   <div class="demo-banner" id="demo-banner" hidden>
@@ -403,6 +403,47 @@
           <p class="legend" id="sched-result"></p>
         </section>
         <section class="panel wide">
+          <div class="panel-heading"><h3 data-i18n="notif.title">Digest matinal</h3><span class="panel-tag" id="notif-tag"></span></div>
+          <p class="scope-note" data-i18n="notif.note">Envia o resumo da ronda (o que mudou, novos riscos, indicadores) ao fim da coleta agendada. Assim a informação chega até você — sem precisar lembrar de abrir o portal.</p>
+          <div class="form-grid">
+            <label><span data-i18n="notif.policy">Quando enviar</span>
+              <select id="notif-policy">
+                <option value="OnlyWhenActivity" data-i18n="notif.onlyActivity">Só quando houver atividade</option>
+                <option value="Always" data-i18n="notif.always">Sempre após a coleta</option>
+              </select></label>
+            <label><span data-i18n="notif.lang">Idioma do digest</span>
+              <select id="notif-lang"><option value="pt">Português</option><option value="en">English</option></select></label>
+          </div>
+
+          <h4 data-i18n="notif.smtpTitle">E-mail (SMTP)</h4>
+          <div class="form-grid">
+            <label><span data-i18n="notif.smtpEnabled">Habilitar e-mail</span>
+              <select id="notif-smtp-enabled"><option value="false" data-i18n="notif.off">Desativado</option><option value="true" data-i18n="notif.on">Ativado</option></select></label>
+            <label><span data-i18n="notif.smtpHost">Servidor SMTP</span><input id="notif-smtp-host" type="text" placeholder="smtp.empresa.com"></label>
+            <label><span data-i18n="notif.smtpPort">Porta</span><input id="notif-smtp-port" type="number" min="1" max="65535" value="587"></label>
+            <label><span data-i18n="notif.smtpTls">STARTTLS</span>
+              <select id="notif-smtp-tls"><option value="true" data-i18n="notif.on">Ativado</option><option value="false" data-i18n="notif.off">Desativado</option></select></label>
+            <label><span data-i18n="notif.smtpUser">Usuário</span><input id="notif-smtp-user" type="text" autocomplete="off"></label>
+            <label><span data-i18n="notif.smtpPass">Senha</span><input id="notif-smtp-pass" type="password" autocomplete="new-password" data-i18n-ph="notif.passPlaceholder" placeholder="(inalterada)"></label>
+            <label><span data-i18n="notif.smtpFrom">Remetente</span><input id="notif-smtp-from" type="email" placeholder="direnix@empresa.com"></label>
+            <label><span data-i18n="notif.smtpTo">Destinatários</span><input id="notif-smtp-to" type="text" placeholder="admin@empresa.com; equipe@empresa.com"></label>
+          </div>
+
+          <h4 data-i18n="notif.webhookTitle">Webhook (Teams/Slack/automações)</h4>
+          <div class="form-grid">
+            <label><span data-i18n="notif.webhookEnabled">Habilitar webhook</span>
+              <select id="notif-webhook-enabled"><option value="false" data-i18n="notif.off">Desativado</option><option value="true" data-i18n="notif.on">Ativado</option></select></label>
+            <label><span data-i18n="notif.webhookUrl">URL do webhook</span><input id="notif-webhook-url" type="url" placeholder="https://..."></label>
+          </div>
+
+          <div class="form-actions">
+            <button class="secondary-button" type="button" id="notif-test" data-i18n="notif.test">Enviar teste agora</button>
+            <button class="primary-button" type="button" id="notif-save" data-i18n="settings.save">Salvar</button>
+          </div>
+          <div class="settings-row"><span data-i18n="notif.last">Último envio</span><strong id="notif-last">—</strong></div>
+          <p class="legend" id="notif-result"></p>
+        </section>
+        <section class="panel wide">
           <div class="panel-heading"><h3 data-i18n="ops.service">Servico local</h3><span class="panel-tag" id="operation-tag"></span></div>
           <div class="operation-grid">
             <a href="/health/live" target="_blank" rel="noreferrer">Health live</a>
@@ -455,7 +496,7 @@
     </div>
   </div>
 
-  <script src="/demo-data.js?v=0.8.0" defer></script>
-  <script src="/app.js?v=0.8.0" defer></script>
+  <script src="/demo-data.js?v=0.9.0-dev" defer></script>
+  <script src="/app.js?v=0.9.0-dev" defer></script>
 </body>
 </html>

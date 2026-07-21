@@ -57,20 +57,20 @@ public sealed class CollectionJobService
         this.logger = logger;
     }
 
-    public string StartJob(CollectionRequest request)
+    public string StartJob(CollectionRequest request, Func<JobSnapshot, Task>? onCompleted = null)
     {
         var jobId = Guid.NewGuid().ToString("N");
         var state = new JobState(jobId);
         jobs[jobId] = state;
 
-        _ = Task.Run(() => RunJobAsync(state, request));
+        _ = Task.Run(() => RunJobAsync(state, request, onCompleted));
         return jobId;
     }
 
     public JobSnapshot? GetJob(string jobId) =>
         jobs.TryGetValue(jobId, out var state) ? state.Snapshot() : null;
 
-    private async Task RunJobAsync(JobState state, CollectionRequest request)
+    private async Task RunJobAsync(JobState state, CollectionRequest request, Func<JobSnapshot, Task>? onCompleted = null)
     {
         state.SetRunning();
         var progress = new Progress<CollectionProgress>(report =>
@@ -141,6 +141,14 @@ public sealed class CollectionJobService
         {
             state.Fail(ex.Message);
             logger.LogError(ex, "Falha no run de coleta {JobId}.", state.JobId);
+        }
+        finally
+        {
+            if (onCompleted is not null)
+            {
+                try { await onCompleted(state.Snapshot()); }
+                catch (Exception ex) { logger.LogWarning(ex, "Callback pos-coleta falhou no job {JobId}.", state.JobId); }
+            }
         }
     }
 

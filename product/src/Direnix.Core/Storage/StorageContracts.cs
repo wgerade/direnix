@@ -122,6 +122,10 @@ public interface IProductStore
     // --- Agendamento da coleta automática ---
     Task<Scheduling.ScheduleConfig> GetScheduleConfigAsync(CancellationToken cancellationToken);
     Task SaveScheduleConfigAsync(Scheduling.ScheduleConfig config, CancellationToken cancellationToken);
+
+    // --- Configurações genéricas (KV app_settings): notificações, último resultado, etc. ---
+    Task<string?> GetSettingAsync(string key, CancellationToken cancellationToken);
+    Task SetSettingAsync(string key, string value, CancellationToken cancellationToken);
 }
 
 public interface ISchemaMigrator

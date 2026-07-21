@@ -3,6 +3,7 @@ using Direnix.Core.Collection;
 using Direnix.Core.Rules;
 using Direnix.Core.Scheduling;
 using Direnix.Core.Storage;
+using Direnix.Service.Notifications;
 
 namespace Direnix.Service.Collection;
 
@@ -17,12 +18,18 @@ public sealed class ScheduledCollectionService : BackgroundService
 
     private readonly IProductStore store;
     private readonly CollectionJobService jobs;
+    private readonly NotificationService notifications;
     private readonly ILogger<ScheduledCollectionService> logger;
 
-    public ScheduledCollectionService(IProductStore store, CollectionJobService jobs, ILogger<ScheduledCollectionService> logger)
+    public ScheduledCollectionService(
+        IProductStore store,
+        CollectionJobService jobs,
+        NotificationService notifications,
+        ILogger<ScheduledCollectionService> logger)
     {
         this.store = store;
         this.jobs = jobs;
+        this.notifications = notifications;
         this.logger = logger;
     }
 
@@ -81,7 +88,24 @@ public sealed class ScheduledCollectionService : BackgroundService
             CustomIndicators = Direnix.Core.Indicators.CustomIndicatorResolver.Resolve(profile)
         };
 
-        jobs.StartJob(request);
+        // Ao fim da coleta agendada, dispara o digest (respeitando a política de envio).
+        // Só notifica quando a coleta conclui de fato — falhas não geram digest.
+        jobs.StartJob(request, async snapshot =>
+        {
+            if (snapshot.Status != JobStatus.Completed)
+            {
+                return;
+            }
+
+            try
+            {
+                await notifications.SendScheduledDigestAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Falha ao enviar digest pos-coleta.");
+            }
+        });
 
         await store.AppendAuditAsync(new AuditEvent(
             DateTimeOffset.UtcNow,

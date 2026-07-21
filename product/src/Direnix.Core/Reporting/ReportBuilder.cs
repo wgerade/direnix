@@ -233,6 +233,83 @@ public static class ReportBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Versão compacta do relatório para o corpo do e-mail de digest: cards de resumo,
+    /// mudanças e indicadores do período, top riscos. CSS inline, sem assets externos.
+    /// </summary>
+    public static string BuildDigestHtml(ReportModel model, string lang)
+    {
+        var l = Strings.ContainsKey(lang) ? lang : "pt";
+        string T(string key) => Strings[l].TryGetValue(key, out var v) ? v : key;
+        string E(string? value) => WebUtility.HtmlEncode(value ?? string.Empty);
+
+        var scoreColor = model.IdentityScore >= 80 ? "#1a7f4b" : model.IdentityScore >= 60 ? "#b26a00" : "#b3261e";
+        var portal = E(model.PortalUrl);
+        var sb = new StringBuilder(8 * 1024);
+
+        sb.Append("<div style=\"font-family:'Segoe UI',Arial,sans-serif;color:#1c2430;max-width:640px;margin:0 auto\">");
+        sb.Append("<div style=\"margin-bottom:14px\"><span style=\"display:inline-block;background:#14324f;color:#fff;border-radius:7px;padding:5px 9px;font-weight:700\">DX</span> <span style=\"font-size:18px;font-weight:700;vertical-align:middle\">Direnix</span></div>");
+
+        // Cards de resumo (tabela para compatibilidade com clientes de e-mail).
+        sb.Append("<table role=\"presentation\" style=\"width:100%;border-collapse:separate;border-spacing:8px 0\"><tr>");
+        void Card(string value, string label, string color)
+        {
+            sb.Append("<td style=\"border:1px solid #dde3ea;border-radius:8px;padding:10px 12px;text-align:center\">")
+              .Append("<div style=\"font-size:24px;font-weight:700;color:").Append(color).Append("\">").Append(E(value))
+              .Append("</div><div style=\"font-size:11px;color:#5c6a7a;text-transform:uppercase\">").Append(E(label)).Append("</div></td>");
+        }
+        Card(model.IdentityScore.ToString(CultureInfo.InvariantCulture), T("identityScore"), scoreColor);
+        Card(model.NewFindings24H.ToString(CultureInfo.InvariantCulture), T("newRisks24h"), "#1c2430");
+        Card(model.ChangeSummary24H.Sum(c => c.Count).ToString(CultureInfo.InvariantCulture), T("changes24h"), "#1c2430");
+        Card(model.ActiveFindings.ToString(CultureInfo.InvariantCulture), T("activeRisks"), "#1c2430");
+        sb.Append("</tr></table>");
+
+        void MiniTable(string heading, IEnumerable<(string Label, int Count)> rows)
+        {
+            var list = rows.ToList();
+            if (list.Count == 0)
+            {
+                return;
+            }
+
+            sb.Append("<h3 style=\"font-size:13px;margin:20px 0 6px;border-bottom:1px solid #e4e9ef;padding-bottom:4px\">").Append(E(heading)).Append("</h3>");
+            sb.Append("<table style=\"width:100%;border-collapse:collapse;font-size:13px\">");
+            foreach (var (label, count) in list)
+            {
+                sb.Append("<tr><td style=\"padding:4px 6px;border-bottom:1px solid #eef1f5\">").Append(E(label))
+                  .Append("</td><td style=\"padding:4px 6px;border-bottom:1px solid #eef1f5;text-align:right;font-weight:600\">").Append(count).Append("</td></tr>");
+            }
+            sb.Append("</table>");
+        }
+
+        MiniTable(T("changes24h"), model.ChangeSummary24H.Where(c => c.Count > 0).Select(c => (T(c.ChangeType), c.Count)));
+        MiniTable(T("indicators"), model.Indicators.Where(i => i.Count > 0).Select(i => (i.Title, i.Count)));
+
+        if (model.TopFindings.Count > 0)
+        {
+            sb.Append("<h3 style=\"font-size:13px;margin:20px 0 6px;border-bottom:1px solid #e4e9ef;padding-bottom:4px\">").Append(E(T("topRisks"))).Append("</h3>");
+            sb.Append("<table style=\"width:100%;border-collapse:collapse;font-size:13px\">");
+            foreach (var finding in model.TopFindings.Take(8))
+            {
+                var sev = finding.Severity.ToString();
+                var sevColor = sev == "Critical" ? "#b3261e" : sev == "High" ? "#d1495b" : sev == "Medium" ? "#b26a00" : sev == "Low" ? "#3b6ea5" : "#5c6a7a";
+                sb.Append("<tr><td style=\"padding:4px 6px;border-bottom:1px solid #eef1f5\"><span style=\"display:inline-block;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:600;color:#fff;background:")
+                  .Append(sevColor).Append("\">").Append(E(T(sev))).Append("</span></td>")
+                  .Append("<td style=\"padding:4px 6px;border-bottom:1px solid #eef1f5\">").Append(E(finding.Title)).Append("</td>")
+                  .Append("<td style=\"padding:4px 6px;border-bottom:1px solid #eef1f5;color:#5c6a7a\">").Append(E(finding.ObjectDisplay)).Append("</td></tr>");
+            }
+            sb.Append("</table>");
+        }
+
+        sb.Append("<p style=\"margin:22px 0 6px\"><a href=\"").Append(portal)
+          .Append("\" style=\"display:inline-block;background:#14324f;color:#fff;text-decoration:none;border-radius:7px;padding:9px 16px;font-weight:600\">")
+          .Append(E(l == "pt" ? "Abrir portal" : "Open portal")).Append("</a></p>");
+        sb.Append("<p style=\"font-size:11px;color:#5c6a7a;border-top:1px solid #e4e9ef;padding-top:10px;margin-top:18px\">")
+          .Append(string.Format(CultureInfo.InvariantCulture, E(T("footer")), E(model.ProductVersion), portal)).Append("</p>");
+        sb.Append("</div>");
+        return sb.ToString();
+    }
+
     /// <summary>CSV de riscos. Primeira linha "sep=," garante colunas corretas no Excel em qualquer locale.</summary>
     public static string BuildFindingsCsv(IReadOnlyList<FindingRow> rows, string lang)
     {

@@ -39,6 +39,15 @@ builder.Services.AddSingleton<IAdDirectoryProbe, LdapDirectoryProbe>();
 builder.Services.AddSingleton<ICollectionEngine, LdapCollector>();
 builder.Services.AddSingleton<HygieneRuleEngine>();
 builder.Services.AddSingleton<Direnix.Service.Collection.CollectionJobService>();
+
+// Relatório/digest: fonte única do ReportModel + canais de notificação.
+builder.Services.AddSingleton<Direnix.Service.Reporting.ReportModelBuilder>();
+builder.Services.AddSingleton<Direnix.Core.Notifications.ISecretProtector, Direnix.Infrastructure.Notifications.WindowsDpapiSecretProtector>();
+builder.Services.AddSingleton<Direnix.Infrastructure.Notifications.SmtpDigestSender>();
+builder.Services.AddSingleton(_ => new Direnix.Infrastructure.Notifications.WebhookDigestSender(
+    new HttpClient { Timeout = TimeSpan.FromSeconds(15) }));
+builder.Services.AddSingleton<Direnix.Service.Notifications.NotificationService>();
+
 builder.Services.AddHostedService<Direnix.Service.Collection.ScheduledCollectionService>();
 
 // Serializa enums como string em toda a API (evita expor valores numericos
@@ -120,6 +129,7 @@ app.MapFindingsEndpoints();
 app.MapReportEndpoints();
 app.MapAuthEndpoints();
 app.MapScheduleEndpoints();
+app.MapNotificationEndpoints();
 app.MapFallbackToFile("index.html", staticFileOptions);
 
 app.Run();
