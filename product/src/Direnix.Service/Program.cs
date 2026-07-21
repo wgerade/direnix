@@ -67,8 +67,25 @@ if (args.Any(a => string.Equals(a, "--reset-admin", StringComparison.OrdinalIgno
     return;
 }
 
+// O portal é servido localmente e itera rápido. Assets estáticos (js/css)
+// trazem ?v=<versão> no index e podem ser cacheados; já o próprio index.html
+// precisa revalidar sempre, senão um upgrade entrega a UI antiga com os
+// script tags velhos (sem a query de versão) e o cache-busting nunca aplica.
+// As mesmas opções valem para o fallback do SPA (MapFallbackToFile), que também
+// entrega index.html.
+var staticFileOptions = new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        if (ctx.File.Name.EndsWith(".html", StringComparison.OrdinalIgnoreCase))
+        {
+            ctx.Context.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
+        }
+    }
+};
+
 app.UseDefaultFiles();
-app.UseStaticFiles();
+app.UseStaticFiles(staticFileOptions);
 
 // Gate de autenticacao: bloqueia chamadas que MUDAM estado (POST/PUT/DELETE em /api)
 // sem sessao valida. Endpoints de auth ficam liberados para bootstrap/login.
@@ -103,6 +120,6 @@ app.MapFindingsEndpoints();
 app.MapReportEndpoints();
 app.MapAuthEndpoints();
 app.MapScheduleEndpoints();
-app.MapFallbackToFile("index.html");
+app.MapFallbackToFile("index.html", staticFileOptions);
 
 app.Run();

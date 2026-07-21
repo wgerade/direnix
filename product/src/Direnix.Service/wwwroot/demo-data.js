@@ -10,7 +10,7 @@
   const DN = (cn, ou) => `CN=${cn},OU=${ou || "Usuarios"},DC=corp,DC=exemplo,DC=local`;
 
   const finding = (key, ruleId, title, category, severity, risk, action, objectDisplay, objectKey, firstHrs, evidence) => ({
-    stableFindingKey: key, ruleId, title, category, severity, risk, action, status: "Active",
+    stableFindingKey: key, ruleId, title, category, severity, risk, action, status: "Open",
     objectDisplay, objectKey, firstSeen: iso(firstHrs), lastSeen: iso(6), lastRunId: RUN2, resolutionReason: null,
     evidence: evidence || {},
     remediation: {
