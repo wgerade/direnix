@@ -120,7 +120,8 @@
     }],
     ["/api/v1/schedule", { enabled: true, frequency: "Daily", timeOfDay: "02:00", intervalHours: 24, weekdays: [1, 2, 3, 4, 5], host: "dc01.corp.exemplo.local", profile: "MicrosoftDefault", lastRunAt: iso(6.8), nextRunAt: isoIn(19) }],
     ["/api/v1/service/status", { installed: false }],
-    ["/api/v1/notifications/config", { smtpEnabled: false, smtpHost: "smtp.corp.exemplo.local", smtpPort: 587, smtpUseStartTls: true, smtpUsername: "direnix@corp.exemplo.local", smtpHasPassword: true, smtpFrom: "direnix@corp.exemplo.local", smtpTo: "identidade@corp.exemplo.local", webhookEnabled: false, webhookUrl: "", policy: "OnlyWhenActivity", lang: "pt", lastOutcome: { at: iso(6.7), skipped: false, skipReason: null, results: [{ ok: true, channel: "smtp", detail: "Enviado para 1 destinatário(s)." }] } }]
+    ["/api/v1/notifications/config", { smtpEnabled: false, smtpHost: "smtp.corp.exemplo.local", smtpPort: 587, smtpUseStartTls: true, smtpUsername: "direnix@corp.exemplo.local", smtpHasPassword: true, smtpFrom: "direnix@corp.exemplo.local", smtpTo: "identidade@corp.exemplo.local", webhookEnabled: false, webhookUrl: "", policy: "OnlyWhenActivity", lang: "pt", lastOutcome: { at: iso(6.7), skipped: false, skipReason: null, results: [{ ok: true, channel: "smtp", detail: "Enviado para 1 destinatário(s)." }] } }],
+    ["/api/v1/system/update", { enabled: false, current: "0.9.0", latest: null, updateAvailable: false, releaseUrl: "https://github.com/wgerade/direnix/releases/latest", checkedAt: null, note: null }]
   ];
 
   window.DEMO_RESOLVE = function (url) {

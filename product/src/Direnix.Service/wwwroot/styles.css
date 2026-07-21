@@ -69,6 +69,8 @@ body {
 .nav-tab:hover { background: var(--surface-2); }
 .nav-tab.is-active { background: var(--primary-weak); color: var(--primary); font-weight: 600; }
 .sidebar-status { margin-top: auto; display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--muted); }
+.update-badge { display: block; margin-top: 0.5rem; padding: 0.4rem 0.6rem; border-radius: 6px; background: #1f6feb; color: #fff; font-size: 0.78rem; font-weight: 600; text-decoration: none; text-align: center; }
+.update-badge:hover { filter: brightness(1.08); }
 .status-light { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); }
 .status-light.ready { background: #16a34a; }
 .status-light.error { background: var(--sev-critical); }

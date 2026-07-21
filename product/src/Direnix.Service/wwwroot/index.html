@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Direnix</title>
-  <link rel="stylesheet" href="/styles.css?v=0.9.0-dev">
+  <link rel="stylesheet" href="/styles.css?v=0.9.0-dev2">
 </head>
 <body>
   <div class="demo-banner" id="demo-banner" hidden>
@@ -36,6 +36,7 @@
         <span class="status-light" id="sidebar-light"></span>
         <span id="sidebar-status">…</span>
       </div>
+      <a class="update-badge" id="update-badge" href="#" target="_blank" rel="noreferrer" hidden></a>
     </aside>
 
     <main class="workspace">
@@ -451,6 +452,19 @@
             <a href="/api/v1/system/about" target="_blank" rel="noreferrer">System about</a>
             <a href="/api/v1/app/shell" target="_blank" rel="noreferrer">App state</a>
           </div>
+          <h4 data-i18n="update.title">Atualizações</h4>
+          <p class="scope-note" data-i18n="update.note">Desligado por padrão. Quando ligado, o Direnix consulta 1x/dia a página de releases do GitHub apenas para ver se há versão nova — nenhum dado é enviado. O botão abaixo faz uma verificação avulsa na hora.</p>
+          <div class="settings-row"><span data-i18n="update.current">Versão instalada</span><strong id="update-current">—</strong></div>
+          <div class="settings-row"><span data-i18n="update.latest">Versão mais recente</span><strong id="update-latest">—</strong></div>
+          <div class="form-grid">
+            <label><span data-i18n="update.auto">Verificar automaticamente</span>
+              <select id="update-enabled"><option value="false" data-i18n="update.off">Desligado</option><option value="true" data-i18n="update.on">Ligado</option></select></label>
+          </div>
+          <div class="form-actions">
+            <button class="secondary-button" type="button" id="update-check" data-i18n="update.check">Verificar agora</button>
+            <button class="primary-button" type="button" id="update-save" data-i18n="settings.save">Salvar</button>
+          </div>
+          <p class="legend" id="update-result"></p>
           <pre id="raw-status" class="raw-status">{}</pre>
         </section>
         <section class="panel wide">
@@ -496,7 +510,7 @@
     </div>
   </div>
 
-  <script src="/demo-data.js?v=0.9.0-dev" defer></script>
-  <script src="/app.js?v=0.9.0-dev" defer></script>
+  <script src="/demo-data.js?v=0.9.0-dev2" defer></script>
+  <script src="/app.js?v=0.9.0-dev2" defer></script>
 </body>
 </html>

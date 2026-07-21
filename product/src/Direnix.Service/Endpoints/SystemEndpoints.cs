@@ -1,6 +1,7 @@
 using Direnix.Core.Identity;
 using Direnix.Infrastructure.Storage;
 using Direnix.Service.Configuration;
+using Direnix.Service.Update;
 using Microsoft.Extensions.Options;
 
 namespace Direnix.Service.Endpoints;
@@ -42,6 +43,24 @@ public static class SystemEndpoints
             prototypeStatus = "Legacy PowerShell portal is migration-only and is not the product runtime."
         }));
 
+        // Check de atualização. GET (auto/cache — só bate na rede se ligado e cache
+        // expirado) e POST (ligar/desligar e/ou check manual = consentimento explícito).
+        group.MapGet("/update", async (UpdateCheckService updates, CancellationToken ct) =>
+            Results.Ok(await updates.GetStatusAsync(force: false, ct)));
+
+        group.MapPost("/update", async (UpdatePreference body, UpdateCheckService updates, CancellationToken ct) =>
+        {
+            if (body.Enabled is not null)
+            {
+                await updates.SetEnabledAsync(body.Enabled.Value, ct);
+            }
+            // "check": bate na rede na hora, mesmo desligado (o usuário pediu).
+            return Results.Ok(await updates.GetStatusAsync(force: body.Check ?? false, ct));
+        });
+
         return endpoints;
     }
 }
+
+/// <summary>Preferência do check de atualização (ligar/desligar e/ou checar agora).</summary>
+public sealed record UpdatePreference(bool? Enabled, bool? Check);

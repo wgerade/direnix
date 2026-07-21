@@ -74,6 +74,12 @@ builder.Services.AddSingleton(_ => new Direnix.Infrastructure.Notifications.Webh
     new HttpClient { Timeout = TimeSpan.FromSeconds(15) }));
 builder.Services.AddSingleton<Direnix.Service.Notifications.NotificationService>();
 
+// Check de atualização (desligado por padrão; zero egress até o usuário ativar).
+builder.Services.AddSingleton(sp => new Direnix.Service.Update.UpdateCheckService(
+    sp.GetRequiredService<IProductStore>(),
+    new HttpClient { Timeout = TimeSpan.FromSeconds(10) },
+    sp.GetRequiredService<ILogger<Direnix.Service.Update.UpdateCheckService>>()));
+
 builder.Services.AddHostedService<Direnix.Service.Collection.ScheduledCollectionService>();
 
 // Serializa enums como string em toda a API (evita expor valores numericos

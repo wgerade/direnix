@@ -133,6 +133,7 @@ const I18N = {
     "sched.title": "Coleta automática", "sched.note": "A coleta agendada roda sob a identidade do serviço (gMSA) via Kerberos/LDAPS — nenhuma senha é armazenada.", "sched.enabled": "Habilitar", "sched.on": "Ativada", "sched.off": "Desativada", "sched.frequency": "Frequência", "sched.daily": "Diária", "sched.weekly": "Semanal", "sched.interval": "A cada N horas", "sched.time": "Horário (HH:MM)", "sched.intervalHours": "Intervalo (horas)", "sched.host": "Controlador de domínio", "sched.weekdays": "Dias da semana", "sched.profile": "Perfil de regras", "sched.activeProfile": "Perfil ativo no momento", "sched.identity": "Identidade da coleta", "sched.last": "Última execução", "sched.next": "Próxima execução", "sched.test": "Testar conectividade", "sched.saved": "Agendamento salvo.",
     "day.mon": "Seg", "day.tue": "Ter", "day.wed": "Qua", "day.thu": "Qui", "day.fri": "Sex", "day.sat": "Sáb", "day.sun": "Dom",
     "portable.badge": "Portátil",
+    "update.title": "Atualizações", "update.note": "Desligado por padrão. Quando ligado, o Direnix consulta 1x/dia a página de releases do GitHub apenas para ver se há versão nova — nenhum dado é enviado. O botão abaixo faz uma verificação avulsa na hora.", "update.current": "Versão instalada", "update.latest": "Versão mais recente", "update.auto": "Verificar automaticamente", "update.on": "Ligado", "update.off": "Desligado", "update.check": "Verificar agora", "update.checking": "Verificando…", "update.available": "Nova versão {0} disponível", "update.upToDate": "Você está na versão mais recente.", "update.failed": "Não foi possível verificar (sem conexão?).", "update.badge": "⬆ Atualizar para {0}",
     "notif.title": "Digest matinal", "notif.note": "Envia o resumo da ronda (o que mudou, novos riscos, indicadores) ao fim da coleta agendada. Assim a informação chega até você — sem precisar lembrar de abrir o portal.", "notif.policy": "Quando enviar", "notif.onlyActivity": "Só quando houver atividade", "notif.always": "Sempre após a coleta", "notif.lang": "Idioma do digest", "notif.on": "Ativado", "notif.off": "Desativado", "notif.smtpTitle": "E-mail (SMTP)", "notif.smtpEnabled": "Habilitar e-mail", "notif.smtpHost": "Servidor SMTP", "notif.smtpPort": "Porta", "notif.smtpTls": "STARTTLS", "notif.smtpUser": "Usuário", "notif.smtpPass": "Senha", "notif.passPlaceholder": "(inalterada)", "notif.smtpFrom": "Remetente", "notif.smtpTo": "Destinatários", "notif.webhookTitle": "Webhook (Teams/Slack/automações)", "notif.webhookEnabled": "Habilitar webhook", "notif.webhookUrl": "URL do webhook", "notif.test": "Enviar teste agora", "notif.last": "Último envio", "notif.saved": "Notificações salvas.", "notif.testing": "Enviando teste…", "notif.skipped": "Pulado", "notif.noChannel": "Nenhum canal habilitado.",
     "svc.title": "Configuração do serviço", "svc.note": "Define como o serviço Windows roda. Para coleta automática segura, use uma gMSA (só o nome da conta; o Windows gerencia a senha).", "svc.curIdentity": "Identidade atual", "svc.curStartup": "Inicialização atual", "svc.startup": "Tipo de inicialização", "svc.startAuto": "Automático", "svc.startDelayed": "Automático (atraso)", "svc.startManual": "Manual", "svc.identity": "Identidade (Log On As)", "svc.idLocalSystem": "LocalSystem", "svc.idGmsa": "Conta gerenciada (gMSA)", "svc.account": "Conta gMSA", "svc.apply": "Aplicar configuração", "svc.restart": "Reinicie o serviço para a nova conta valer.",
     "exc.expires": "Expira em", "exc.empty": "Nenhuma exceção registrada", "exc.remove": "Remover", "exc.newName": "Nome do novo perfil:"
@@ -268,6 +269,7 @@ const I18N = {
     "sched.title": "Automatic collection", "sched.note": "Scheduled collection runs as the service identity (gMSA) over Kerberos/LDAPS — no password is stored.", "sched.enabled": "Enabled", "sched.on": "On", "sched.off": "Off", "sched.frequency": "Frequency", "sched.daily": "Daily", "sched.weekly": "Weekly", "sched.interval": "Every N hours", "sched.time": "Time (HH:MM)", "sched.intervalHours": "Interval (hours)", "sched.host": "Domain controller", "sched.profile": "Rule profile", "sched.activeProfile": "Currently active profile", "sched.weekdays": "Weekdays", "sched.identity": "Collection identity", "sched.last": "Last run", "sched.next": "Next run", "sched.test": "Test connectivity", "sched.saved": "Schedule saved.",
     "day.mon": "Mon", "day.tue": "Tue", "day.wed": "Wed", "day.thu": "Thu", "day.fri": "Fri", "day.sat": "Sat", "day.sun": "Sun",
     "portable.badge": "Portable",
+    "update.title": "Updates", "update.note": "Off by default. When on, Direnix checks the GitHub releases page once a day just to see if a newer version exists — no data is sent. The button below runs a one-off check now.", "update.current": "Installed version", "update.latest": "Latest version", "update.auto": "Check automatically", "update.on": "On", "update.off": "Off", "update.check": "Check now", "update.checking": "Checking…", "update.available": "New version {0} available", "update.upToDate": "You are on the latest version.", "update.failed": "Could not check (offline?).", "update.badge": "⬆ Update to {0}",
     "notif.title": "Morning digest", "notif.note": "Sends the rounds summary (what changed, new risks, indicators) at the end of the scheduled collection. The information reaches you — no need to remember to open the portal.", "notif.policy": "When to send", "notif.onlyActivity": "Only when there is activity", "notif.always": "Always after collection", "notif.lang": "Digest language", "notif.on": "On", "notif.off": "Off", "notif.smtpTitle": "Email (SMTP)", "notif.smtpEnabled": "Enable email", "notif.smtpHost": "SMTP server", "notif.smtpPort": "Port", "notif.smtpTls": "STARTTLS", "notif.smtpUser": "Username", "notif.smtpPass": "Password", "notif.passPlaceholder": "(unchanged)", "notif.smtpFrom": "From", "notif.smtpTo": "Recipients", "notif.webhookTitle": "Webhook (Teams/Slack/automations)", "notif.webhookEnabled": "Enable webhook", "notif.webhookUrl": "Webhook URL", "notif.test": "Send test now", "notif.last": "Last send", "notif.saved": "Notifications saved.", "notif.testing": "Sending test…", "notif.skipped": "Skipped", "notif.noChannel": "No channel enabled.",
     "svc.title": "Service configuration", "svc.note": "Defines how the Windows service runs. For secure scheduled collection, use a gMSA (account name only; Windows manages the password).", "svc.curIdentity": "Current identity", "svc.curStartup": "Current startup", "svc.startup": "Startup type", "svc.startAuto": "Automatic", "svc.startDelayed": "Automatic (delayed)", "svc.startManual": "Manual", "svc.identity": "Identity (Log On As)", "svc.idLocalSystem": "LocalSystem", "svc.idGmsa": "Managed account (gMSA)", "svc.account": "gMSA account", "svc.apply": "Apply configuration", "svc.restart": "Restart the service for the new account to take effect.",
     "exc.expires": "Expires", "exc.empty": "No exceptions registered", "exc.remove": "Remove", "exc.newName": "New profile name:"
@@ -1544,6 +1546,7 @@ async function startApp() {
   loadSchedule();
   loadServiceStatus();
   loadNotifications();
+  loadUpdate();
 }
 async function submitAuth() {
   const username = byId("auth-username")?.value.trim();
@@ -1698,6 +1701,49 @@ async function testNotifications() {
 }
 byId("notif-save")?.addEventListener("click", saveNotifications);
 byId("notif-test")?.addEventListener("click", testNotifications);
+
+// ---------------- update check ----------------
+const UPDATE_URL = "/api/v1/system/update";
+function renderUpdate(s) {
+  if (!s) return;
+  text("update-current", s.current || "—");
+  text("update-latest", s.latest || "—");
+  const sel = byId("update-enabled"); if (sel) sel.value = s.enabled ? "true" : "false";
+  const badge = byId("update-badge");
+  if (badge) {
+    if (s.updateAvailable && s.latest) {
+      badge.hidden = false;
+      badge.textContent = t("update.badge").replace("{0}", s.latest);
+      badge.href = s.releaseUrl || "#";
+    } else {
+      badge.hidden = true;
+    }
+  }
+}
+async function loadUpdate() {
+  // GET não força rede: só reflete o estado local (ou cache) quando desligado.
+  try { renderUpdate(await getJson(UPDATE_URL)); } catch {}
+}
+async function saveUpdatePref() {
+  try {
+    const s = await postJson(UPDATE_URL, { enabled: byId("update-enabled").value === "true" });
+    renderUpdate(s);
+    text("update-result", t("notif.saved"));
+  } catch (e) { text("update-result", e.message); }
+}
+async function checkUpdateNow() {
+  text("update-result", t("update.checking"));
+  try {
+    // check:true = verificação manual (consentimento explícito para bater na rede).
+    const s = await postJson(UPDATE_URL, { check: true });
+    renderUpdate(s);
+    if (s.note === "check-failed") text("update-result", t("update.failed"));
+    else if (s.updateAvailable && s.latest) text("update-result", t("update.available").replace("{0}", s.latest));
+    else text("update-result", t("update.upToDate"));
+  } catch (e) { text("update-result", e.message); }
+}
+byId("update-save")?.addEventListener("click", saveUpdatePref);
+byId("update-check")?.addEventListener("click", checkUpdateNow);
 
 // ---------------- service config ----------------
 function svcIdentityUi() {

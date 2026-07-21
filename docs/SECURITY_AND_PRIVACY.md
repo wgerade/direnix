@@ -30,11 +30,16 @@ The portal binds to **127.0.0.1:8787** by default — it is not reachable from t
 
 ## What leaves the machine
 
-**Nothing.**
+**Nothing, by default.**
 
 - No telemetry, no usage analytics, no crash reporting, no "phone home".
-- No cloud component. The only network traffic Direnix generates is the LDAP/LDAPS connection to the domain controller you configure.
+- No cloud component. The only network traffic Direnix generates on its own is the LDAP/LDAPS connection to the domain controller you configure.
 - Demo mode ("Explore with sample data") is a local fixture: it makes **no** network, AD or database access at all.
+
+Two features can send network traffic, and **both are off until you turn them on**:
+
+- **Update check** (Operations → Updates): off by default. When enabled, once a day Direnix reads the public GitHub releases page to see if a newer version exists. It only *reads a version number* — no data about you, your machine or your directory is sent. You can also run a one-off "Check now" without enabling the automatic check. Disabled = no request is ever made.
+- **Morning digest** (Operations → Morning digest): off by default. When you configure it, Direnix sends the rounds summary to the SMTP server and/or webhook URL **that you provide** — nowhere else. The SMTP password is stored protected with DPAPI, never in clear text.
 
 ## Known limitations / honest notes
 

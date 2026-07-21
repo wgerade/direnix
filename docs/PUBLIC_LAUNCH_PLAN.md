@@ -79,11 +79,12 @@ A feature de retenção: o resumo do Morning View chega ao admin, em vez de ele 
 - Critério de aceite: coleta agendada às 02:00 → e-mail na caixa às 02:0x com mudanças/indicadores e link para o portal.
 - Esforço: M–L (4–6 dias).
 
-### 7. Verificação de atualização
+### 7. Verificação de atualização — CONCLUÍDO (2026-07-21)
 
-- `GET` na API de releases do GitHub (1x/dia, opcional/desligável, sem telemetria — só leitura da versão mais recente) → badge "nova versão disponível" no rodapé da sidebar com link para a página de release.
-- Importante: falha de rede é silenciosa; ambientes sem internet não veem nada.
-- Esforço: S (1 dia).
+`UpdateCheckService` lê a release mais recente do GitHub (`/repos/wgerade/direnix/releases/latest`), compara versões e expõe `GET/POST /api/v1/system/update`. **Desligado por padrão** (decisão de coerência com a promessa "zero egress" da página de segurança): nenhuma chamada de rede sem o usuário ativar OU pedir um check manual (consentimento explícito). Ligado, consulta 1x/dia (cache 24h em `app_settings`). Falha de rede é silenciosa. UI: painel em Operação (ligar/desligar + "verificar agora") e badge "⬆ Atualizar para X" no rodapé da sidebar com link para a release.
+
+- Impl: `Update/UpdateCheckService.cs`, endpoints no `SystemEndpoints`, UI no `wwwroot`, fixture demo, 9 testes de comparação de versão. Página Security & Privacy atualizada divulgando o check (e o digest) como exceções opt-in ao zero-egress.
+- Verificado: default desligado sem rede; check manual bate no GitHub real (latest 0.8.0); cache reutilizado; badge renderiza quando há update.
 
 ---
 
