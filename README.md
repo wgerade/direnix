@@ -27,7 +27,7 @@ Direnix is **read-only against AD** (LDAP/LDAPS searches only, LDAPS by default)
 1. Download `Direnix-x.y.z.msi` from [Releases](../../releases).
 2. Install on a domain-joined Windows machine (Windows Server 2019+ or Windows 10/11):
    ```powershell
-   msiexec /i Direnix-0.8.0.msi
+   msiexec /i Direnix-0.9.0.msi
    ```
    > The MSI is not code-signed yet, so SmartScreen will warn you. Verify the SHA-256 hash published on the release page, then choose *More info → Run anyway*.
 3. Open the portal at `http://127.0.0.1:8787/` (or Start Menu → Direnix → Direnix Portal) and create the local administrator.
@@ -61,7 +61,7 @@ Architecture and design docs live in [`docs/`](docs/) (currently mostly in Portu
 
 ## Roadmap
 
-- **v0.9** — morning digest by e-mail/webhook (Teams/Slack) after each scheduled collection; update check.
+- **v0.9 (current)** — morning digest by e-mail/webhook (Teams/Slack) after each scheduled collection; opt-in update check; portable single-exe mode.
 - **Next** — Entra ID (hybrid identity) collection and correlation; trusts/sites/FSMO inventory; approval workflows.
 
 ## Contributing & feedback
