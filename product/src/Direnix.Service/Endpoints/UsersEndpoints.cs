@@ -9,6 +9,7 @@ namespace Direnix.Service.Endpoints;
 /// <summary>
 /// Gestão de usuários locais do portal (apenas LocalAdmin). Modelo de 2 papéis
 /// exposto na UI: administrador (LocalAdmin) e somente leitura (ReadOnlyTechnical).
+/// Não se aplica ao modo portátil (sessão local única, sem login).
 /// </summary>
 public static class UsersEndpoints
 {
@@ -21,17 +22,14 @@ public static class UsersEndpoints
 
         group.MapGet("/", async (IProductStore store, HttpContext http, PortableModeState portable, CancellationToken ct) =>
         {
-            var (isAdmin, selfId) = await ResolveAsync(store, http, portable, ct);
-            if (!isAdmin)
-            {
-                return Results.Json(new { error = "Apenas administradores podem gerenciar usuarios." }, statusCode: 403);
-            }
+            var (forbidden, selfId) = await RequireAdminAsync(store, http, portable, ct);
+            if (forbidden is not null) return forbidden;
+
             var now = DateTimeOffset.UtcNow;
             var users = await store.ListUsersAsync(ct);
             var online = (await store.ListActiveSessionUsernamesAsync(now, ct)).ToHashSet(StringComparer.OrdinalIgnoreCase);
             return Results.Ok(new
             {
-                portable = portable.IsPortable,
                 items = users.Select(u => new
                 {
                     userId = u.UserId,
@@ -48,11 +46,9 @@ public static class UsersEndpoints
 
         group.MapPost("/", async (UserCreateBody body, IProductStore store, HttpContext http, PortableModeState portable, CancellationToken ct) =>
         {
-            var (isAdmin, _) = await ResolveAsync(store, http, portable, ct);
-            if (!isAdmin)
-            {
-                return Results.Json(new { error = "Apenas administradores podem gerenciar usuarios." }, statusCode: 403);
-            }
+            var (forbidden, _) = await RequireAdminAsync(store, http, portable, ct);
+            if (forbidden is not null) return forbidden;
+
             var role = NormalizeRole(body.Role);
             if (role is null)
             {
@@ -81,11 +77,9 @@ public static class UsersEndpoints
 
         group.MapPut("/{userId}/role", async (string userId, UserRoleBody body, IProductStore store, HttpContext http, PortableModeState portable, CancellationToken ct) =>
         {
-            var (isAdmin, _) = await ResolveAsync(store, http, portable, ct);
-            if (!isAdmin)
-            {
-                return Results.Json(new { error = "Apenas administradores podem gerenciar usuarios." }, statusCode: 403);
-            }
+            var (forbidden, _) = await RequireAdminAsync(store, http, portable, ct);
+            if (forbidden is not null) return forbidden;
+
             var role = NormalizeRole(body.Role);
             if (role is null)
             {
@@ -96,8 +90,7 @@ public static class UsersEndpoints
             {
                 return Results.NotFound(new { error = "Usuario nao encontrado." });
             }
-            // Não deixar a conta ficar sem nenhum administrador.
-            if (target.Role == Admin && role != Admin && await store.CountUsersByRoleAsync(Admin, ct) <= 1)
+            if (role != Admin && await IsLastAdminAsync(store, target, ct))
             {
                 return Results.BadRequest(new { error = "Deve existir ao menos um administrador." });
             }
@@ -108,11 +101,9 @@ public static class UsersEndpoints
 
         group.MapPut("/{userId}/password", async (string userId, UserPasswordBody body, IProductStore store, HttpContext http, PortableModeState portable, CancellationToken ct) =>
         {
-            var (isAdmin, _) = await ResolveAsync(store, http, portable, ct);
-            if (!isAdmin)
-            {
-                return Results.Json(new { error = "Apenas administradores podem gerenciar usuarios." }, statusCode: 403);
-            }
+            var (forbidden, _) = await RequireAdminAsync(store, http, portable, ct);
+            if (forbidden is not null) return forbidden;
+
             if (PasswordPolicy.Validate(body.Password) is { } policyError)
             {
                 return Results.BadRequest(new { error = policyError });
@@ -131,11 +122,9 @@ public static class UsersEndpoints
 
         group.MapDelete("/{userId}", async (string userId, IProductStore store, HttpContext http, PortableModeState portable, CancellationToken ct) =>
         {
-            var (isAdmin, selfId) = await ResolveAsync(store, http, portable, ct);
-            if (!isAdmin)
-            {
-                return Results.Json(new { error = "Apenas administradores podem gerenciar usuarios." }, statusCode: 403);
-            }
+            var (forbidden, selfId) = await RequireAdminAsync(store, http, portable, ct);
+            if (forbidden is not null) return forbidden;
+
             if (userId == selfId)
             {
                 return Results.BadRequest(new { error = "Voce nao pode excluir a propria conta." });
@@ -145,7 +134,7 @@ public static class UsersEndpoints
             {
                 return Results.NotFound(new { error = "Usuario nao encontrado." });
             }
-            if (target.Role == Admin && await store.CountUsersByRoleAsync(Admin, ct) <= 1)
+            if (await IsLastAdminAsync(store, target, ct))
             {
                 return Results.BadRequest(new { error = "Deve existir ao menos um administrador." });
             }
@@ -157,23 +146,27 @@ public static class UsersEndpoints
         return endpoints;
     }
 
-    // LocalAdmin? + id do usuário da sessão. Portátil = admin (sessão local única, sem login).
-    private static async Task<(bool isAdmin, string? selfId)> ResolveAsync(IProductStore store, HttpContext http, PortableModeState portable, CancellationToken ct)
+    // Gate único de todos os handlers: bloqueia o modo portátil (não há multiusuário)
+    // e exige LocalAdmin. Retorna o 403 pronto (ou null) + o UserId real do próprio
+    // usuário (para isSelf / excluir-self).
+    private static async Task<(IResult? forbidden, string? selfId)> RequireAdminAsync(
+        IProductStore store, HttpContext http, PortableModeState portable, CancellationToken ct)
     {
         if (portable.IsPortable)
         {
-            return (true, null);
+            return (Results.Json(new { error = "Gestao de usuarios nao se aplica ao modo portatil." }, statusCode: 403), null);
         }
-        var session = await AuthEndpoints.ResolveSessionAsync(store, http, ct);
-        if (session is null)
+        var user = await AuthEndpoints.ResolveActingUserAsync(store, http, ct);
+        if (!AuthEndpoints.IsAdmin(user))
         {
-            return (false, null);
+            return (Results.Json(new { error = "Apenas administradores podem gerenciar usuarios." }, statusCode: 403), null);
         }
-        // AppSession.UserId guarda o *username* (ver IssueSessionAsync); resolve o
-        // registro para obter papel e o UserId real (usado em isSelf / excluir-self).
-        var user = await store.GetUserByNameAsync(session.UserId, ct);
-        return (user is not null && user.Role == Admin, user?.UserId);
+        return (null, user!.UserId);
     }
+
+    // Não deixar a conta ficar sem nenhum administrador.
+    private static async Task<bool> IsLastAdminAsync(IProductStore store, AppUserRecord target, CancellationToken ct) =>
+        target.Role == Admin && await store.CountUsersByRoleAsync(Admin, ct) <= 1;
 
     private static string? NormalizeRole(string? role) => role switch
     {

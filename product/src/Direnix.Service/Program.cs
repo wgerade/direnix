@@ -169,9 +169,8 @@ app.Use(async (context, next) =>
         // Enforcement de papel: só o administrador (LocalAdmin) altera estado; usuários
         // com papel somente leitura recebem 403 em qualquer mutação. Login/logout são
         // endpoints de auth (isentos acima).
-        // Obs.: AppSession.UserId guarda o *username* (quirk de IssueSessionAsync).
-        var actingUser = await store.GetUserByNameAsync(session.UserId, context.RequestAborted);
-        if (actingUser is null || actingUser.Role != nameof(Direnix.Core.Identity.AppRole.LocalAdmin))
+        var actingUser = await Direnix.Service.Auth.AuthEndpoints.ResolveActingUserAsync(store, context, context.RequestAborted);
+        if (!Direnix.Service.Auth.AuthEndpoints.IsAdmin(actingUser))
         {
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
             await context.Response.WriteAsJsonAsync(new { error = "Acesso somente leitura." });

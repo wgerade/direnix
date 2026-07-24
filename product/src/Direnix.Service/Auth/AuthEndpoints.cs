@@ -27,16 +27,14 @@ public static class AuthEndpoints
             }
 
             var needsSetup = await store.GetUserCountAsync(ct) == 0;
-            var session = await ResolveSessionAsync(store, http, ct);
-            // AppSession.UserId guarda o *username* (ver IssueSessionAsync).
-            var user = session is not null ? await store.GetUserByNameAsync(session.UserId, ct) : null;
+            var user = await ResolveActingUserAsync(store, http, ct);
             return Results.Ok(new
             {
                 needsSetup,
-                authenticated = session is not null,
-                username = user?.Username ?? session?.UserId,
+                authenticated = user is not null,
+                username = user?.Username,
                 portable = false,
-                isAdmin = user?.Role == nameof(Direnix.Core.Identity.AppRole.LocalAdmin),
+                isAdmin = IsAdmin(user),
                 role = user?.Role,
                 lastLogin = user?.LastLogin
             });
@@ -150,6 +148,21 @@ public static class AuthEndpoints
         var session = await store.GetSessionAsync(token, ct);
         return session is not null && session.ExpiresAt > DateTimeOffset.UtcNow ? session : null;
     }
+
+    /// <summary>
+    /// Resolve o usuário da requisição (sessão válida → registro). Ponto único para
+    /// o detalhe de que <c>AppSession.UserId</c> guarda o *username* (ver
+    /// <see cref="IssueSessionAsync"/>): os chamadores não repetem esse caveat.
+    /// </summary>
+    public static async Task<AppUserRecord?> ResolveActingUserAsync(IProductStore store, HttpContext http, CancellationToken ct)
+    {
+        var session = await ResolveSessionAsync(store, http, ct);
+        return session is null ? null : await store.GetUserByNameAsync(session.UserId, ct);
+    }
+
+    /// <summary>True se o usuário é administrador (LocalAdmin).</summary>
+    public static bool IsAdmin(AppUserRecord? user) =>
+        user?.Role == nameof(Direnix.Core.Identity.AppRole.LocalAdmin);
 
     private static async Task IssueSessionAsync(IProductStore store, HttpContext http, AppUserRecord user, CancellationToken ct)
     {

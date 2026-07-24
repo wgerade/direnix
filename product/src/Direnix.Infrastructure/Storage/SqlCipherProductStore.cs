@@ -1088,9 +1088,11 @@ public sealed class SqlCipherProductStore : IProductStore, ISchemaMigrator
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
 
-    // Lê um AppUserRecord com as colunas de segurança (v9). Ordem do SELECT:
-    // user_id, username, password_hash, salt, iterations, role, created_at,
-    // failed_attempts, locked_until, last_login.
+    // Colunas do usuário na ordem que MapUser espera (base v1 + segurança v9).
+    private const string UserColumns =
+        "user_id, username, password_hash, salt, iterations, role, created_at, failed_attempts, locked_until, last_login";
+
+    // Lê um AppUserRecord na ordem de UserColumns.
     private static AppUserRecord MapUser(SqliteDataReader reader) => new(
         reader.GetString(0), reader.GetString(1), reader.GetString(2), reader.GetString(3),
         reader.GetInt32(4), reader.GetString(5),
@@ -1103,11 +1105,11 @@ public sealed class SqlCipherProductStore : IProductStore, ISchemaMigrator
     {
         using var connection = await OpenConnectionAsync(cancellationToken);
         await using var command = connection.CreateCommand();
-        // Incrementa; se atingir o limite, tranca por LockoutDuration e zera o contador.
+        // Incrementa; ao atingir o limite, tranca por LockoutDuration e zera o contador.
+        // Uma única atribuição por coluna (o RHS usa o valor original da linha no SQLite).
         command.CommandText = """
             UPDATE app_users
-               SET failed_attempts = failed_attempts + 1,
-                   locked_until = CASE WHEN failed_attempts + 1 >= $max THEN $until ELSE locked_until END,
+               SET locked_until = CASE WHEN failed_attempts + 1 >= $max THEN $until ELSE locked_until END,
                    failed_attempts = CASE WHEN failed_attempts + 1 >= $max THEN 0 ELSE failed_attempts + 1 END
              WHERE username = $u;
             """;
@@ -1163,7 +1165,7 @@ public sealed class SqlCipherProductStore : IProductStore, ISchemaMigrator
     {
         using var connection = await OpenConnectionAsync(cancellationToken);
         await using var command = connection.CreateCommand();
-        command.CommandText = "SELECT user_id, username, password_hash, salt, iterations, role, created_at, failed_attempts, locked_until, last_login FROM app_users WHERE username = $u;";
+        command.CommandText = $"SELECT {UserColumns} FROM app_users WHERE username = $u;";
         command.Parameters.AddWithValue("$u", username);
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         if (!await reader.ReadAsync(cancellationToken))
@@ -1177,7 +1179,7 @@ public sealed class SqlCipherProductStore : IProductStore, ISchemaMigrator
     {
         using var connection = await OpenConnectionAsync(cancellationToken);
         await using var command = connection.CreateCommand();
-        command.CommandText = "SELECT user_id, username, password_hash, salt, iterations, role, created_at, failed_attempts, locked_until, last_login FROM app_users WHERE user_id = $id;";
+        command.CommandText = $"SELECT {UserColumns} FROM app_users WHERE user_id = $id;";
         command.Parameters.AddWithValue("$id", userId);
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         if (!await reader.ReadAsync(cancellationToken))
@@ -1191,7 +1193,7 @@ public sealed class SqlCipherProductStore : IProductStore, ISchemaMigrator
     {
         using var connection = await OpenConnectionAsync(cancellationToken);
         await using var command = connection.CreateCommand();
-        command.CommandText = "SELECT user_id, username, password_hash, salt, iterations, role, created_at, failed_attempts, locked_until, last_login FROM app_users ORDER BY created_at;";
+        command.CommandText = $"SELECT {UserColumns} FROM app_users ORDER BY created_at;";
         var list = new List<AppUserRecord>();
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
