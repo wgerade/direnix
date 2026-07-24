@@ -20,20 +20,24 @@ public static class AuthEndpoints
     {
         endpoints.MapGet("/api/v1/auth/me", async (IProductStore store, HttpContext http, PortableModeState portable, CancellationToken ct) =>
         {
-            // Portátil: sessão única implícita, sem setup/login.
+            // Portátil: sessão única implícita, sem setup/login. Trata como administrador.
             if (portable.IsPortable)
             {
-                return Results.Ok(new { needsSetup = false, authenticated = true, username = portable.Operator, portable = true });
+                return Results.Ok(new { needsSetup = false, authenticated = true, username = portable.Operator, portable = true, isAdmin = true, role = nameof(Direnix.Core.Identity.AppRole.LocalAdmin) });
             }
 
             var needsSetup = await store.GetUserCountAsync(ct) == 0;
             var session = await ResolveSessionAsync(store, http, ct);
+            // AppSession.UserId guarda o *username* (ver IssueSessionAsync).
+            var user = session is not null ? await store.GetUserByNameAsync(session.UserId, ct) : null;
             return Results.Ok(new
             {
                 needsSetup,
                 authenticated = session is not null,
-                username = session?.UserId,
-                portable = false
+                username = user?.Username ?? session?.UserId,
+                portable = false,
+                isAdmin = user?.Role == nameof(Direnix.Core.Identity.AppRole.LocalAdmin),
+                role = user?.Role
             });
         });
 

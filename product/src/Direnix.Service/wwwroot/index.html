@@ -467,6 +467,32 @@
           <p class="legend" id="update-result"></p>
           <pre id="raw-status" class="raw-status">{}</pre>
         </section>
+        <section class="panel wide" id="users-panel" hidden>
+          <div class="panel-heading"><h3 data-i18n="users.title">Usuários do portal</h3><span class="panel-tag" id="users-tag"></span></div>
+          <p class="scope-note" data-i18n="users.note">Contas de acesso ao portal. Administrador altera tudo; Somente leitura apenas visualiza (não coleta, não remedia, não configura).</p>
+          <table class="data-table">
+            <thead><tr>
+              <th data-i18n="users.user">Usuário</th><th data-i18n="users.role">Papel</th>
+              <th data-i18n="users.created">Criado em</th><th></th>
+            </tr></thead>
+            <tbody id="users-body"></tbody>
+          </table>
+          <div class="empty-table" id="users-empty" hidden><strong data-i18n="users.empty">Nenhum usuário</strong></div>
+          <h4 data-i18n="users.add">Novo usuário</h4>
+          <div class="form-grid">
+            <label><span data-i18n="users.user">Usuário</span><input id="user-name" type="text" autocomplete="off"></label>
+            <label><span data-i18n="users.pass">Senha (mín. 8)</span><input id="user-pass" type="password" autocomplete="new-password"></label>
+            <label><span data-i18n="users.role">Papel</span>
+              <select id="user-role">
+                <option value="ReadOnlyTechnical" data-i18n="users.readonly">Somente leitura</option>
+                <option value="LocalAdmin" data-i18n="users.admin">Administrador</option>
+              </select></label>
+          </div>
+          <div class="form-actions">
+            <button class="primary-button" type="button" id="user-add" data-i18n="users.create">Criar usuário</button>
+          </div>
+          <p class="legend" id="users-result"></p>
+        </section>
         <section class="panel wide">
           <div class="panel-heading"><h3 data-i18n="ops.audit">Auditoria de ações</h3><span class="panel-tag" id="audit-tag"></span></div>
           <table class="data-table">

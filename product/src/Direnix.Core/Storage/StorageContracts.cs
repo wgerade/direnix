@@ -108,6 +108,11 @@ public interface IProductStore
     Task<int> GetUserCountAsync(CancellationToken cancellationToken);
     Task CreateUserAsync(Auth.AppUserRecord user, CancellationToken cancellationToken);
     Task<Auth.AppUserRecord?> GetUserByNameAsync(string username, CancellationToken cancellationToken);
+    Task<Auth.AppUserRecord?> GetUserByIdAsync(string userId, CancellationToken cancellationToken);
+    Task<IReadOnlyList<Auth.AppUserRecord>> ListUsersAsync(CancellationToken cancellationToken);
+    Task DeleteUserAsync(string userId, CancellationToken cancellationToken);
+    Task UpdateUserRoleAsync(string userId, string role, CancellationToken cancellationToken);
+    Task<int> CountUsersByRoleAsync(string role, CancellationToken cancellationToken);
     Task CreateSessionAsync(Auth.AppSession session, CancellationToken cancellationToken);
     Task<Auth.AppSession?> GetSessionAsync(string token, CancellationToken cancellationToken);
     Task DeleteSessionAsync(string token, CancellationToken cancellationToken);

@@ -150,6 +150,18 @@ app.Use(async (context, next) =>
             await context.Response.WriteAsJsonAsync(new { error = "Autenticacao necessaria." });
             return;
         }
+
+        // Enforcement de papel: só o administrador (LocalAdmin) altera estado; usuários
+        // com papel somente leitura recebem 403 em qualquer mutação. Login/logout são
+        // endpoints de auth (isentos acima).
+        // Obs.: AppSession.UserId guarda o *username* (quirk de IssueSessionAsync).
+        var actingUser = await store.GetUserByNameAsync(session.UserId, context.RequestAborted);
+        if (actingUser is null || actingUser.Role != nameof(Direnix.Core.Identity.AppRole.LocalAdmin))
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            await context.Response.WriteAsJsonAsync(new { error = "Acesso somente leitura." });
+            return;
+        }
     }
 
     await next();
@@ -162,6 +174,7 @@ app.MapCollectionEndpoints();
 app.MapFindingsEndpoints();
 app.MapReportEndpoints();
 app.MapAuthEndpoints();
+app.MapUsersEndpoints();
 app.MapScheduleEndpoints();
 app.MapNotificationEndpoints();
 app.MapFallbackToFile("index.html", staticFileOptions);

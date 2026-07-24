@@ -138,6 +138,7 @@ const I18N = {
     "update.title": "Atualizações", "update.note": "Desligado por padrão. Quando ligado, o Direnix consulta 1x/dia a página de releases do GitHub apenas para ver se há versão nova — nenhum dado é enviado. O botão abaixo faz uma verificação avulsa na hora.", "update.current": "Versão instalada", "update.latest": "Versão mais recente", "update.auto": "Verificar automaticamente", "update.on": "Ligado", "update.off": "Desligado", "update.check": "Verificar agora", "update.checking": "Verificando…", "update.available": "Nova versão {0} disponível", "update.upToDate": "Você está na versão mais recente.", "update.failed": "Não foi possível verificar (sem conexão?).", "update.badge": "⬆ Atualizar para {0}",
     "notif.title": "Digest matinal", "notif.note": "Envia o resumo da ronda (o que mudou, novos riscos, indicadores) ao fim da coleta agendada. Assim a informação chega até você — sem precisar lembrar de abrir o portal.", "notif.policy": "Quando enviar", "notif.onlyActivity": "Só quando houver atividade", "notif.always": "Sempre após a coleta", "notif.lang": "Idioma do digest", "notif.on": "Ativado", "notif.off": "Desativado", "notif.smtpTitle": "E-mail (SMTP)", "notif.smtpEnabled": "Habilitar e-mail", "notif.smtpHost": "Servidor SMTP", "notif.smtpPort": "Porta", "notif.smtpTls": "STARTTLS", "notif.smtpUser": "Usuário", "notif.smtpPass": "Senha", "notif.passPlaceholder": "(inalterada)", "notif.smtpFrom": "Remetente", "notif.smtpTo": "Destinatários", "notif.webhookTitle": "Webhook (Teams/Slack/automações)", "notif.webhookEnabled": "Habilitar webhook", "notif.webhookUrl": "URL do webhook", "notif.test": "Enviar teste agora", "notif.last": "Último envio", "notif.saved": "Notificações salvas.", "notif.testing": "Enviando teste…", "notif.skipped": "Pulado", "notif.noChannel": "Nenhum canal habilitado.",
     "svc.title": "Configuração do serviço", "svc.note": "Define como o serviço Windows roda. Para coleta automática segura, use uma gMSA (só o nome da conta; o Windows gerencia a senha).", "svc.curIdentity": "Identidade atual", "svc.curStartup": "Inicialização atual", "svc.startup": "Tipo de inicialização", "svc.startAuto": "Automático", "svc.startDelayed": "Automático (atraso)", "svc.startManual": "Manual", "svc.identity": "Identidade (Log On As)", "svc.idLocalSystem": "LocalSystem", "svc.idGmsa": "Conta gerenciada (gMSA)", "svc.account": "Conta gMSA", "svc.apply": "Aplicar configuração", "svc.restart": "Reinicie o serviço para a nova conta valer.",
+    "users.title": "Usuários do portal", "users.note": "Contas de acesso ao portal. Administrador altera tudo; Somente leitura apenas visualiza (não coleta, não remedia, não configura).", "users.user": "Usuário", "users.role": "Papel", "users.created": "Criado em", "users.empty": "Nenhum usuário", "users.add": "Novo usuário", "users.pass": "Senha (mín. 8)", "users.readonly": "Somente leitura", "users.admin": "Administrador", "users.create": "Criar usuário", "users.you": "(você)", "users.createdOk": "Usuário criado.", "users.deleted": "Usuário removido.", "users.confirmDel": "Excluir o usuário {0}?",
     "exc.expires": "Expira em", "exc.empty": "Nenhuma exceção registrada", "exc.remove": "Remover", "exc.newName": "Nome do novo perfil:"
   },
   en: {
@@ -276,6 +277,7 @@ const I18N = {
     "update.title": "Updates", "update.note": "Off by default. When on, Direnix checks the GitHub releases page once a day just to see if a newer version exists — no data is sent. The button below runs a one-off check now.", "update.current": "Installed version", "update.latest": "Latest version", "update.auto": "Check automatically", "update.on": "On", "update.off": "Off", "update.check": "Check now", "update.checking": "Checking…", "update.available": "New version {0} available", "update.upToDate": "You are on the latest version.", "update.failed": "Could not check (offline?).", "update.badge": "⬆ Update to {0}",
     "notif.title": "Morning digest", "notif.note": "Sends the rounds summary (what changed, new risks, indicators) at the end of the scheduled collection. The information reaches you — no need to remember to open the portal.", "notif.policy": "When to send", "notif.onlyActivity": "Only when there is activity", "notif.always": "Always after collection", "notif.lang": "Digest language", "notif.on": "On", "notif.off": "Off", "notif.smtpTitle": "Email (SMTP)", "notif.smtpEnabled": "Enable email", "notif.smtpHost": "SMTP server", "notif.smtpPort": "Port", "notif.smtpTls": "STARTTLS", "notif.smtpUser": "Username", "notif.smtpPass": "Password", "notif.passPlaceholder": "(unchanged)", "notif.smtpFrom": "From", "notif.smtpTo": "Recipients", "notif.webhookTitle": "Webhook (Teams/Slack/automations)", "notif.webhookEnabled": "Enable webhook", "notif.webhookUrl": "Webhook URL", "notif.test": "Send test now", "notif.last": "Last send", "notif.saved": "Notifications saved.", "notif.testing": "Sending test…", "notif.skipped": "Skipped", "notif.noChannel": "No channel enabled.",
     "svc.title": "Service configuration", "svc.note": "Defines how the Windows service runs. For secure scheduled collection, use a gMSA (account name only; Windows manages the password).", "svc.curIdentity": "Current identity", "svc.curStartup": "Current startup", "svc.startup": "Startup type", "svc.startAuto": "Automatic", "svc.startDelayed": "Automatic (delayed)", "svc.startManual": "Manual", "svc.identity": "Identity (Log On As)", "svc.idLocalSystem": "LocalSystem", "svc.idGmsa": "Managed account (gMSA)", "svc.account": "gMSA account", "svc.apply": "Apply configuration", "svc.restart": "Restart the service for the new account to take effect.",
+    "users.title": "Portal users", "users.note": "Portal access accounts. Admin can change everything; Read-only can only view (no collection, no remediation, no configuration).", "users.user": "User", "users.role": "Role", "users.created": "Created", "users.empty": "No users", "users.add": "New user", "users.pass": "Password (min. 8)", "users.readonly": "Read-only", "users.admin": "Administrator", "users.create": "Create user", "users.you": "(you)", "users.createdOk": "User created.", "users.deleted": "User removed.", "users.confirmDel": "Delete user {0}?",
     "exc.expires": "Expires", "exc.empty": "No exceptions registered", "exc.remove": "Remove", "exc.newName": "New profile name:"
   }
 };
@@ -1525,6 +1527,7 @@ byId("profile-activate")?.addEventListener("click", async () => {
 // ---------------- auth ----------------
 let authMode = "login"; // "login" | "setup"
 let sessionUser = null; // operador = usuario logado (sem campo manual no wizard)
+let isAdmin = false; // LocalAdmin? controla a visibilidade do painel de usuários
 function showAuth(needsSetup) {
   authMode = needsSetup ? "setup" : "login";
   const ov = byId("auth-overlay"); if (ov) ov.hidden = false;
@@ -1544,7 +1547,7 @@ async function bootAuth() {
       const sub = byId("brand-mode"); if (sub) sub.textContent = t("portable.badge");
       const lo = byId("logout-button"); if (lo) lo.hidden = true;
     }
-    if (me.authenticated) { sessionUser = me.username || null; startApp(); return; }
+    if (me.authenticated) { sessionUser = me.username || null; isAdmin = me.isAdmin === true; startApp(); return; }
     showAuth(me.needsSetup === true);
   } catch { showAuth(false); }
 }
@@ -1556,6 +1559,7 @@ async function startApp() {
   loadServiceStatus();
   loadNotifications();
   loadUpdate();
+  loadUsers();
 }
 async function submitAuth() {
   const username = byId("auth-username")?.value.trim();
@@ -1573,6 +1577,8 @@ async function submitAuth() {
     }
     if (err) err.hidden = true;
     try { const b = await res.json(); sessionUser = b.username || username; } catch { sessionUser = username; }
+    // Reconsulta /me para saber o papel (isAdmin) antes de montar a UI.
+    try { const me = await getJson(`${endpoints.auth}/me`); isAdmin = me.isAdmin === true; sessionUser = me.username || sessionUser; } catch {}
     const pwd = byId("auth-password"); if (pwd) pwd.value = "";
     startApp();
   } catch { if (err) { err.hidden = false; err.textContent = t("auth.bad"); } }
@@ -1753,6 +1759,54 @@ async function checkUpdateNow() {
 }
 byId("update-save")?.addEventListener("click", saveUpdatePref);
 byId("update-check")?.addEventListener("click", checkUpdateNow);
+
+// ---------------- user management (admin only) ----------------
+function roleLabel(r) { return r === "LocalAdmin" ? t("users.admin") : t("users.readonly"); }
+async function loadUsers() {
+  const panel = byId("users-panel"); if (!panel) return;
+  // Só administradores gerenciam usuários; em portátil não há multiusuário.
+  if (!isAdmin || portableMode) { panel.hidden = true; return; }
+  try {
+    const data = await getJson("/api/v1/users");
+    if (data.portable) { panel.hidden = true; return; }
+    panel.hidden = false;
+    renderUsers(data.items || []);
+  } catch { panel.hidden = true; }
+}
+function renderUsers(items) {
+  text("users-tag", `${items.length}`);
+  const body = byId("users-body"), empty = byId("users-empty");
+  if (empty) empty.hidden = items.length > 0;
+  body.innerHTML = items.map((u) => {
+    const other = u.role === "LocalAdmin" ? "ReadOnlyTechnical" : "LocalAdmin";
+    const roleBtn = u.isSelf ? "" : `<button class="secondary-button" type="button" data-role="${escapeHtml(u.userId)}" data-to="${other}">${roleLabel(other)}</button>`;
+    const delBtn = u.isSelf ? `<span class="muted-row">${t("users.you")}</span>` : `<button class="secondary-button danger" type="button" data-del="${escapeHtml(u.userId)}" data-name="${escapeHtml(u.username)}">${t("settings.delete")}</button>`;
+    return `<tr><td>${escapeHtml(u.username)}</td><td>${roleLabel(u.role)}</td><td>${fmtDate(u.createdAt)}</td><td class="row-actions">${roleBtn} ${delBtn}</td></tr>`;
+  }).join("");
+  body.querySelectorAll("[data-role]").forEach((b) => b.addEventListener("click", () => changeRole(b.dataset.role, b.dataset.to)));
+  body.querySelectorAll("[data-del]").forEach((b) => b.addEventListener("click", () => deleteUser(b.dataset.del, b.dataset.name)));
+}
+async function createUser() {
+  const username = byId("user-name")?.value.trim();
+  const password = byId("user-pass")?.value ?? "";
+  const role = byId("user-role")?.value;
+  try {
+    await postJson("/api/v1/users", { username, password, role });
+    byId("user-name").value = ""; byId("user-pass").value = "";
+    text("users-result", t("users.createdOk"));
+    loadUsers();
+  } catch (e) { text("users-result", e.message); }
+}
+async function changeRole(userId, to) {
+  try { await sendJson(`/api/v1/users/${userId}/role`, "PUT", { role: to }); loadUsers(); }
+  catch (e) { text("users-result", e.message); }
+}
+async function deleteUser(userId, name) {
+  if (!confirm(t("users.confirmDel").replace("{0}", name))) return;
+  try { await sendJson(`/api/v1/users/${userId}`, "DELETE"); text("users-result", t("users.deleted")); loadUsers(); }
+  catch (e) { text("users-result", e.message); }
+}
+byId("user-add")?.addEventListener("click", createUser);
 
 // ---------------- service config ----------------
 function svcIdentityUi() {

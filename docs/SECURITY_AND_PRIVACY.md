@@ -14,7 +14,8 @@ This page explains exactly what Direnix touches, what it stores, and what it sen
 - The AD credential used for an interactive collection is **request-scoped**: used for that LDAP bind and discarded. It is never written to the database, config files or logs.
 - Scheduled collections run under the **service identity** — recommended: a **gMSA** (group Managed Service Account), so Windows manages the password and Direnix stores only the account name.
 - The collection account needs **ordinary domain read permissions**. Domain Admin is not required and not recommended.
-- The portal login is a **local application user** (bcrypt-style password hash in the local database), unrelated to your AD credentials.
+- The portal login is a **local application user** (salted password hash in the local database), unrelated to your AD credentials.
+- **Roles**: portal users are either **Administrator** (can collect, remediate, configure, and manage users) or **Read-only** (can only view). Read-only users are rejected on every state-changing API call, not just hidden in the UI. The account cannot be left without at least one administrator. Manage users under Operations → Portal users (admin only). Portable mode is single-user and treats the local session as administrator.
 
 ## What is stored, and where
 

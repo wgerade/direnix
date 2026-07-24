@@ -1098,6 +1098,65 @@ public sealed class SqlCipherProductStore : IProductStore, ISchemaMigrator
             reader.GetInt32(4), reader.GetString(5), DateTimeOffset.Parse(reader.GetString(6), CultureInfo.InvariantCulture));
     }
 
+    public async Task<AppUserRecord?> GetUserByIdAsync(string userId, CancellationToken cancellationToken)
+    {
+        using var connection = await OpenConnectionAsync(cancellationToken);
+        await using var command = connection.CreateCommand();
+        command.CommandText = "SELECT user_id, username, password_hash, salt, iterations, role, created_at FROM app_users WHERE user_id = $id;";
+        command.Parameters.AddWithValue("$id", userId);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        if (!await reader.ReadAsync(cancellationToken))
+        {
+            return null;
+        }
+        return new AppUserRecord(reader.GetString(0), reader.GetString(1), reader.GetString(2), reader.GetString(3),
+            reader.GetInt32(4), reader.GetString(5), DateTimeOffset.Parse(reader.GetString(6), CultureInfo.InvariantCulture));
+    }
+
+    public async Task<IReadOnlyList<AppUserRecord>> ListUsersAsync(CancellationToken cancellationToken)
+    {
+        using var connection = await OpenConnectionAsync(cancellationToken);
+        await using var command = connection.CreateCommand();
+        command.CommandText = "SELECT user_id, username, password_hash, salt, iterations, role, created_at FROM app_users ORDER BY created_at;";
+        var list = new List<AppUserRecord>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            list.Add(new AppUserRecord(reader.GetString(0), reader.GetString(1), reader.GetString(2), reader.GetString(3),
+                reader.GetInt32(4), reader.GetString(5), DateTimeOffset.Parse(reader.GetString(6), CultureInfo.InvariantCulture)));
+        }
+        return list;
+    }
+
+    public async Task DeleteUserAsync(string userId, CancellationToken cancellationToken)
+    {
+        using var connection = await OpenConnectionAsync(cancellationToken);
+        await using var command = connection.CreateCommand();
+        // Encerra também as sessões do usuário removido.
+        command.CommandText = "DELETE FROM app_sessions WHERE user_id = $id; DELETE FROM app_users WHERE user_id = $id;";
+        command.Parameters.AddWithValue("$id", userId);
+        await command.ExecuteNonQueryAsync(cancellationToken);
+    }
+
+    public async Task UpdateUserRoleAsync(string userId, string role, CancellationToken cancellationToken)
+    {
+        using var connection = await OpenConnectionAsync(cancellationToken);
+        await using var command = connection.CreateCommand();
+        command.CommandText = "UPDATE app_users SET role = $r WHERE user_id = $id;";
+        command.Parameters.AddWithValue("$r", role);
+        command.Parameters.AddWithValue("$id", userId);
+        await command.ExecuteNonQueryAsync(cancellationToken);
+    }
+
+    public async Task<int> CountUsersByRoleAsync(string role, CancellationToken cancellationToken)
+    {
+        using var connection = await OpenConnectionAsync(cancellationToken);
+        await using var command = connection.CreateCommand();
+        command.CommandText = "SELECT COUNT(*) FROM app_users WHERE role = $r;";
+        command.Parameters.AddWithValue("$r", role);
+        return Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken));
+    }
+
     public async Task<int> ResetAdminAsync(CancellationToken cancellationToken)
     {
         await MigrateAsync(cancellationToken);
