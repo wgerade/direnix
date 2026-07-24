@@ -310,28 +310,33 @@ public static class ReportBuilder
         return sb.ToString();
     }
 
-    /// <summary>CSV de riscos. Primeira linha "sep=," garante colunas corretas no Excel em qualquer locale.</summary>
+    // Separador por locale: pt-BR Excel usa ';' nativamente, en usa ','. Assim o CSV
+    // abre em colunas no Excel dos dois lados SEM a linha "sep=," (que poluía o arquivo
+    // e aparecia como lixo em editores de texto / Google Sheets).
+    private static char DelimiterFor(string lang) => lang == "pt" ? ';' : ',';
+
+    /// <summary>CSV de riscos, delimitado conforme o locale do idioma.</summary>
     public static string BuildFindingsCsv(IReadOnlyList<FindingRow> rows, string lang)
     {
         var l = Strings.ContainsKey(lang) ? lang : "pt";
         string T(string key) => Strings[l].TryGetValue(key, out var v) ? v : key;
+        var d = DelimiterFor(l);
 
         var sb = new StringBuilder();
-        sb.AppendLine("sep=,");
-        sb.AppendLine(string.Join(',', new[]
+        sb.AppendLine(string.Join(d, new[]
         {
             T("colSeverity"), T("colCategory"), "RuleId", T("colRisk"), T("colObject"),
             "Score", "Status", "FirstSeen", "LastSeen"
-        }.Select(CsvField)));
+        }.Select(v => CsvField(v, d))));
         foreach (var row in rows)
         {
-            sb.AppendLine(string.Join(',', new[]
+            sb.AppendLine(string.Join(d, new[]
             {
                 T(row.Severity.ToString()), T(row.Category.ToString()), row.RuleId, row.Title, row.ObjectDisplay,
                 row.BusinessRiskScore.ToString(CultureInfo.InvariantCulture), row.Status.ToString(),
                 row.FirstSeen.ToLocalTime().ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture),
                 row.LastSeen.ToLocalTime().ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)
-            }.Select(CsvField)));
+            }.Select(v => CsvField(v, d))));
         }
 
         return sb.ToString();
@@ -342,27 +347,27 @@ public static class ReportBuilder
     {
         var l = Strings.ContainsKey(lang) ? lang : "pt";
         string T(string key) => Strings[l].TryGetValue(key, out var v) ? v : key;
+        var d = DelimiterFor(l);
 
         var sb = new StringBuilder();
-        sb.AppendLine("sep=,");
-        sb.AppendLine(string.Join(',', new[] { T("colType"), T("colTotal"), "LastObservedAt" }.Select(CsvField)));
+        sb.AppendLine(string.Join(d, new[] { T("colType"), T("colTotal"), "LastObservedAt" }.Select(v => CsvField(v, d))));
         foreach (var item in inventory)
         {
-            sb.AppendLine(string.Join(',', new[]
+            sb.AppendLine(string.Join(d, new[]
             {
                 item.ObjectType,
                 item.TotalCount.ToString(CultureInfo.InvariantCulture),
                 item.LastObservedAt?.ToLocalTime().ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) ?? string.Empty
-            }.Select(CsvField)));
+            }.Select(v => CsvField(v, d))));
         }
 
         return sb.ToString();
     }
 
-    private static string CsvField(string? value)
+    private static string CsvField(string? value, char delimiter)
     {
         var text = value ?? string.Empty;
-        if (text.Contains(',') || text.Contains('"') || text.Contains('\n') || text.Contains('\r'))
+        if (text.IndexOf(delimiter) >= 0 || text.Contains('"') || text.Contains('\n') || text.Contains('\r'))
         {
             return '"' + text.Replace("\"", "\"\"") + '"';
         }
