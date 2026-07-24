@@ -114,8 +114,23 @@ if (isResetAdmin)
 // script tags velhos (sem a query de versão) e o cache-busting nunca aplica.
 // As mesmas opções valem para o fallback do SPA (MapFallbackToFile), que também
 // entrega index.html.
+// Provider do wwwroot: físico (dev com edição ao vivo e MSI instalado) quando a pasta
+// existe, mais o wwwroot EMBUTIDO no assembly (essencial no portátil single-file, onde
+// não há pasta no disco). Composite = físico tem prioridade, embutido é o fallback.
+var webRootProviders = new List<Microsoft.Extensions.FileProviders.IFileProvider>();
+var physicalWebRoot = Path.Combine(app.Environment.ContentRootPath, "wwwroot");
+if (Directory.Exists(physicalWebRoot))
+{
+    webRootProviders.Add(new Microsoft.Extensions.FileProviders.PhysicalFileProvider(physicalWebRoot));
+}
+webRootProviders.Add(new Microsoft.Extensions.FileProviders.ManifestEmbeddedFileProvider(typeof(Program).Assembly, "wwwroot"));
+var webRootProvider = webRootProviders.Count == 1
+    ? webRootProviders[0]
+    : new Microsoft.Extensions.FileProviders.CompositeFileProvider(webRootProviders);
+
 var staticFileOptions = new StaticFileOptions
 {
+    FileProvider = webRootProvider,
     OnPrepareResponse = ctx =>
     {
         if (ctx.File.Name.EndsWith(".html", StringComparison.OrdinalIgnoreCase))
@@ -125,7 +140,7 @@ var staticFileOptions = new StaticFileOptions
     }
 };
 
-app.UseDefaultFiles();
+app.UseDefaultFiles(new DefaultFilesOptions { FileProvider = webRootProvider });
 app.UseStaticFiles(staticFileOptions);
 
 // Gate de autenticacao: bloqueia chamadas que MUDAM estado (POST/PUT/DELETE em /api)

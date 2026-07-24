@@ -27,7 +27,7 @@ Direnix is **read-only against AD** (LDAP/LDAPS searches only, LDAPS by default)
 1. Download `Direnix-x.y.z.msi` from [Releases](../../releases).
 2. Install on a domain-joined Windows machine (Windows Server 2019+ or Windows 10/11):
    ```powershell
-   msiexec /i Direnix-0.9.0.msi
+   msiexec /i Direnix-0.9.1.msi
    ```
    > The MSI is not code-signed yet, so SmartScreen will warn you. Verify the SHA-256 hash published on the release page, then choose *More info → Run anyway*.
 3. Open the portal at `http://127.0.0.1:8787/` (or Start Menu → Direnix → Direnix Portal) and create the local administrator.
