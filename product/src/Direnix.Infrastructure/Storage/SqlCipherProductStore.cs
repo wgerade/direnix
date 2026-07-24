@@ -18,7 +18,7 @@ namespace Direnix.Infrastructure.Storage;
 
 public sealed class SqlCipherProductStore : IProductStore, ISchemaMigrator
 {
-    private const int CurrentSchemaVersion = 8;
+    private const int CurrentSchemaVersion = 9;
     private static readonly string[] ActiveStatuses = ["New", "Open", "Recurring"];
     private const string RuleProfilesKey = "rules.profiles";
     private readonly IDatabaseKeyStore keyStore;
@@ -106,6 +106,11 @@ public sealed class SqlCipherProductStore : IProductStore, ISchemaMigrator
         if (currentVersion < 8)
         {
             await ApplySchemaV8Async(connection, transaction, cancellationToken);
+        }
+
+        if (currentVersion < 9)
+        {
+            await ApplySchemaV9Async(connection, transaction, cancellationToken);
         }
 
         transaction.Commit();
@@ -1083,47 +1088,115 @@ public sealed class SqlCipherProductStore : IProductStore, ISchemaMigrator
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
 
+    // Lê um AppUserRecord com as colunas de segurança (v9). Ordem do SELECT:
+    // user_id, username, password_hash, salt, iterations, role, created_at,
+    // failed_attempts, locked_until, last_login.
+    private static AppUserRecord MapUser(SqliteDataReader reader) => new(
+        reader.GetString(0), reader.GetString(1), reader.GetString(2), reader.GetString(3),
+        reader.GetInt32(4), reader.GetString(5),
+        DateTimeOffset.Parse(reader.GetString(6), CultureInfo.InvariantCulture),
+        reader.FieldCount > 7 && !reader.IsDBNull(7) ? reader.GetInt32(7) : 0,
+        reader.FieldCount > 8 && !reader.IsDBNull(8) ? DateTimeOffset.Parse(reader.GetString(8), CultureInfo.InvariantCulture) : null,
+        reader.FieldCount > 9 && !reader.IsDBNull(9) ? DateTimeOffset.Parse(reader.GetString(9), CultureInfo.InvariantCulture) : null);
+
+    public async Task RegisterFailedLoginAsync(string username, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        using var connection = await OpenConnectionAsync(cancellationToken);
+        await using var command = connection.CreateCommand();
+        // Incrementa; se atingir o limite, tranca por LockoutDuration e zera o contador.
+        command.CommandText = """
+            UPDATE app_users
+               SET failed_attempts = failed_attempts + 1,
+                   locked_until = CASE WHEN failed_attempts + 1 >= $max THEN $until ELSE locked_until END,
+                   failed_attempts = CASE WHEN failed_attempts + 1 >= $max THEN 0 ELSE failed_attempts + 1 END
+             WHERE username = $u;
+            """;
+        command.Parameters.AddWithValue("$u", username);
+        command.Parameters.AddWithValue("$max", Direnix.Core.Auth.PasswordPolicy.MaxFailedAttempts);
+        command.Parameters.AddWithValue("$until", now.Add(Direnix.Core.Auth.PasswordPolicy.LockoutDuration).ToString("O"));
+        await command.ExecuteNonQueryAsync(cancellationToken);
+    }
+
+    public async Task RegisterSuccessfulLoginAsync(string username, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        using var connection = await OpenConnectionAsync(cancellationToken);
+        await using var command = connection.CreateCommand();
+        command.CommandText = "UPDATE app_users SET failed_attempts = 0, locked_until = NULL, last_login = $now WHERE username = $u;";
+        command.Parameters.AddWithValue("$u", username);
+        command.Parameters.AddWithValue("$now", now.ToString("O"));
+        await command.ExecuteNonQueryAsync(cancellationToken);
+    }
+
+    public async Task UpdatePasswordAsync(string userId, string passwordHash, string salt, int iterations, CancellationToken cancellationToken)
+    {
+        using var connection = await OpenConnectionAsync(cancellationToken);
+        await using var command = connection.CreateCommand();
+        // Nova senha zera o lockout e encerra as sessões vigentes do usuário.
+        command.CommandText = """
+            UPDATE app_users SET password_hash = $h, salt = $s, iterations = $it, failed_attempts = 0, locked_until = NULL WHERE user_id = $id;
+            DELETE FROM app_sessions WHERE user_id = (SELECT username FROM app_users WHERE user_id = $id);
+            """;
+        command.Parameters.AddWithValue("$id", userId);
+        command.Parameters.AddWithValue("$h", passwordHash);
+        command.Parameters.AddWithValue("$s", salt);
+        command.Parameters.AddWithValue("$it", iterations);
+        await command.ExecuteNonQueryAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<string>> ListActiveSessionUsernamesAsync(DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        using var connection = await OpenConnectionAsync(cancellationToken);
+        await using var command = connection.CreateCommand();
+        // app_sessions.user_id guarda o username (ver IssueSessionAsync).
+        command.CommandText = "SELECT DISTINCT user_id FROM app_sessions WHERE expires_at > $now;";
+        command.Parameters.AddWithValue("$now", now.ToString("O"));
+        var list = new List<string>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            list.Add(reader.GetString(0));
+        }
+        return list;
+    }
+
     public async Task<AppUserRecord?> GetUserByNameAsync(string username, CancellationToken cancellationToken)
     {
         using var connection = await OpenConnectionAsync(cancellationToken);
         await using var command = connection.CreateCommand();
-        command.CommandText = "SELECT user_id, username, password_hash, salt, iterations, role, created_at FROM app_users WHERE username = $u;";
+        command.CommandText = "SELECT user_id, username, password_hash, salt, iterations, role, created_at, failed_attempts, locked_until, last_login FROM app_users WHERE username = $u;";
         command.Parameters.AddWithValue("$u", username);
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         if (!await reader.ReadAsync(cancellationToken))
         {
             return null;
         }
-        return new AppUserRecord(reader.GetString(0), reader.GetString(1), reader.GetString(2), reader.GetString(3),
-            reader.GetInt32(4), reader.GetString(5), DateTimeOffset.Parse(reader.GetString(6), CultureInfo.InvariantCulture));
+        return MapUser(reader);
     }
 
     public async Task<AppUserRecord?> GetUserByIdAsync(string userId, CancellationToken cancellationToken)
     {
         using var connection = await OpenConnectionAsync(cancellationToken);
         await using var command = connection.CreateCommand();
-        command.CommandText = "SELECT user_id, username, password_hash, salt, iterations, role, created_at FROM app_users WHERE user_id = $id;";
+        command.CommandText = "SELECT user_id, username, password_hash, salt, iterations, role, created_at, failed_attempts, locked_until, last_login FROM app_users WHERE user_id = $id;";
         command.Parameters.AddWithValue("$id", userId);
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         if (!await reader.ReadAsync(cancellationToken))
         {
             return null;
         }
-        return new AppUserRecord(reader.GetString(0), reader.GetString(1), reader.GetString(2), reader.GetString(3),
-            reader.GetInt32(4), reader.GetString(5), DateTimeOffset.Parse(reader.GetString(6), CultureInfo.InvariantCulture));
+        return MapUser(reader);
     }
 
     public async Task<IReadOnlyList<AppUserRecord>> ListUsersAsync(CancellationToken cancellationToken)
     {
         using var connection = await OpenConnectionAsync(cancellationToken);
         await using var command = connection.CreateCommand();
-        command.CommandText = "SELECT user_id, username, password_hash, salt, iterations, role, created_at FROM app_users ORDER BY created_at;";
+        command.CommandText = "SELECT user_id, username, password_hash, salt, iterations, role, created_at, failed_attempts, locked_until, last_login FROM app_users ORDER BY created_at;";
         var list = new List<AppUserRecord>();
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
         {
-            list.Add(new AppUserRecord(reader.GetString(0), reader.GetString(1), reader.GetString(2), reader.GetString(3),
-                reader.GetInt32(4), reader.GetString(5), DateTimeOffset.Parse(reader.GetString(6), CultureInfo.InvariantCulture)));
+            list.Add(MapUser(reader));
         }
         return list;
     }
@@ -2040,6 +2113,32 @@ public sealed class SqlCipherProductStore : IProductStore, ISchemaMigrator
         migration.CommandText = """
             INSERT OR IGNORE INTO schema_migrations(version, name, applied_at, checksum)
             VALUES (8, 'indicator_results', $applied_at, 'schema-v8');
+            """;
+        migration.Parameters.AddWithValue("$applied_at", DateTimeOffset.UtcNow.ToString("O"));
+        await migration.ExecuteNonQueryAsync(cancellationToken);
+    }
+
+    // v9: segurança de login — contador de falhas, bloqueio temporário e último acesso.
+    private static async Task ApplySchemaV9Async(
+        SqliteConnection connection,
+        SqliteTransaction transaction,
+        CancellationToken cancellationToken)
+    {
+        foreach (var sql in new[]
+        {
+            "ALTER TABLE app_users ADD COLUMN failed_attempts INTEGER NOT NULL DEFAULT 0;",
+            "ALTER TABLE app_users ADD COLUMN locked_until TEXT NULL;",
+            "ALTER TABLE app_users ADD COLUMN last_login TEXT NULL;"
+        })
+        {
+            await ExecuteNonQueryAsync(connection, sql, cancellationToken, transaction);
+        }
+
+        await using var migration = connection.CreateCommand();
+        migration.Transaction = transaction;
+        migration.CommandText = """
+            INSERT OR IGNORE INTO schema_migrations(version, name, applied_at, checksum)
+            VALUES (9, 'login_security', $applied_at, 'schema-v9');
             """;
         migration.Parameters.AddWithValue("$applied_at", DateTimeOffset.UtcNow.ToString("O"));
         await migration.ExecuteNonQueryAsync(cancellationToken);

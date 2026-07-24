@@ -467,13 +467,24 @@
           <p class="legend" id="update-result"></p>
           <pre id="raw-status" class="raw-status">{}</pre>
         </section>
+        <section class="panel wide" id="account-panel" hidden>
+          <div class="panel-heading"><h3 data-i18n="acct.title">Minha conta</h3><span class="panel-tag" id="acct-user"></span></div>
+          <p class="scope-note" data-i18n="acct.note">Trocar a própria senha. A troca encerra suas outras sessões.</p>
+          <div class="form-grid">
+            <label><span data-i18n="acct.current">Senha atual</span><input id="acct-current" type="password" autocomplete="current-password"></label>
+            <label><span data-i18n="acct.new">Nova senha</span><input id="acct-new" type="password" autocomplete="new-password"></label>
+          </div>
+          <p class="legend" data-i18n="acct.policy">Mínimo 10 caracteres, com ao menos 3 de: maiúsculas, minúsculas, números, símbolos.</p>
+          <div class="form-actions"><button class="primary-button" type="button" id="acct-change" data-i18n="acct.change">Trocar senha</button></div>
+          <p class="legend" id="acct-result"></p>
+        </section>
         <section class="panel wide" id="users-panel" hidden>
           <div class="panel-heading"><h3 data-i18n="users.title">Usuários do portal</h3><span class="panel-tag" id="users-tag"></span></div>
           <p class="scope-note" data-i18n="users.note">Contas de acesso ao portal. Administrador altera tudo; Somente leitura apenas visualiza (não coleta, não remedia, não configura).</p>
           <table class="data-table">
             <thead><tr>
               <th data-i18n="users.user">Usuário</th><th data-i18n="users.role">Papel</th>
-              <th data-i18n="users.created">Criado em</th><th></th>
+              <th data-i18n="users.status">Status</th><th data-i18n="users.lastLogin">Último acesso</th><th></th>
             </tr></thead>
             <tbody id="users-body"></tbody>
           </table>
@@ -481,7 +492,7 @@
           <h4 data-i18n="users.add">Novo usuário</h4>
           <div class="form-grid">
             <label><span data-i18n="users.user">Usuário</span><input id="user-name" type="text" autocomplete="off"></label>
-            <label><span data-i18n="users.pass">Senha (mín. 8)</span><input id="user-pass" type="password" autocomplete="new-password"></label>
+            <label><span data-i18n="users.pass">Senha</span><input id="user-pass" type="password" autocomplete="new-password"></label>
             <label><span data-i18n="users.role">Papel</span>
               <select id="user-role">
                 <option value="ReadOnlyTechnical" data-i18n="users.readonly">Somente leitura</option>
@@ -530,8 +541,10 @@
       <p class="auth-sub" id="auth-sub" data-i18n="auth.sub">Acesso ao portal de operações de identidade.</p>
       <label><span data-i18n="auth.user">Usuário</span><input id="auth-username" type="text" autocomplete="username"></label>
       <label><span data-i18n="auth.pass">Senha</span><input id="auth-password" type="password" autocomplete="current-password"></label>
+      <p class="legend auth-policy" id="auth-policy" hidden data-i18n="acct.policy">Mínimo 10 caracteres, com ao menos 3 de: maiúsculas, minúsculas, números, símbolos.</p>
       <button class="primary-button" type="button" id="auth-submit" data-i18n="auth.login">Entrar</button>
       <p class="auth-error" id="auth-error" hidden></p>
+      <p class="legend auth-forgot" id="auth-forgot" data-i18n="auth.forgot">Esqueceu a senha? Peça a um administrador para redefinir. O administrador pode redefinir a própria conta reiniciando o serviço com <code>Direnix.Service.exe --reset-admin</code>.</p>
       <button class="secondary-button auth-demo" type="button" id="demo-button" data-i18n="demo.enter">Explorar com dados de exemplo</button>
     </div>
   </div>

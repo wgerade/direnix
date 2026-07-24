@@ -26,11 +26,23 @@ public static class UsersEndpoints
             {
                 return Results.Json(new { error = "Apenas administradores podem gerenciar usuarios." }, statusCode: 403);
             }
+            var now = DateTimeOffset.UtcNow;
             var users = await store.ListUsersAsync(ct);
+            var online = (await store.ListActiveSessionUsernamesAsync(now, ct)).ToHashSet(StringComparer.OrdinalIgnoreCase);
             return Results.Ok(new
             {
                 portable = portable.IsPortable,
-                items = users.Select(u => new { userId = u.UserId, username = u.Username, role = u.Role, createdAt = u.CreatedAt, isSelf = u.UserId == selfId })
+                items = users.Select(u => new
+                {
+                    userId = u.UserId,
+                    username = u.Username,
+                    role = u.Role,
+                    createdAt = u.CreatedAt,
+                    isSelf = u.UserId == selfId,
+                    lastLogin = u.LastLogin,
+                    online = online.Contains(u.Username),
+                    locked = u.IsLockedNow(now)
+                })
             });
         });
 
@@ -46,16 +58,20 @@ public static class UsersEndpoints
             {
                 return Results.BadRequest(new { error = "Papel invalido." });
             }
-            if (string.IsNullOrWhiteSpace(body.Username) || string.IsNullOrEmpty(body.Password) || body.Password.Length < 8)
+            if (string.IsNullOrWhiteSpace(body.Username))
             {
-                return Results.BadRequest(new { error = "Informe usuario e uma senha de pelo menos 8 caracteres." });
+                return Results.BadRequest(new { error = "Informe um nome de usuario." });
+            }
+            if (PasswordPolicy.Validate(body.Password) is { } policyError)
+            {
+                return Results.BadRequest(new { error = policyError });
             }
             if (await store.GetUserByNameAsync(body.Username.Trim(), ct) is not null)
             {
                 return Results.Conflict(new { error = "Ja existe um usuario com esse nome." });
             }
 
-            var hash = PasswordHasher.Hash(body.Password);
+            var hash = PasswordHasher.Hash(body.Password!);
             var user = new AppUserRecord(Guid.NewGuid().ToString("N"), body.Username.Trim(),
                 hash.Hash, hash.Salt, hash.Iterations, role, DateTimeOffset.UtcNow);
             await store.CreateUserAsync(user, ct);
@@ -88,6 +104,29 @@ public static class UsersEndpoints
             await store.UpdateUserRoleAsync(userId, role, ct);
             await PortalAudit.LogAsync(store, http, "UserRoleChanged", "User", $"{target.Username} -> {role}", "Success");
             return Results.Ok(new { userId, role });
+        });
+
+        group.MapPut("/{userId}/password", async (string userId, UserPasswordBody body, IProductStore store, HttpContext http, PortableModeState portable, CancellationToken ct) =>
+        {
+            var (isAdmin, _) = await ResolveAsync(store, http, portable, ct);
+            if (!isAdmin)
+            {
+                return Results.Json(new { error = "Apenas administradores podem gerenciar usuarios." }, statusCode: 403);
+            }
+            if (PasswordPolicy.Validate(body.Password) is { } policyError)
+            {
+                return Results.BadRequest(new { error = policyError });
+            }
+            var target = await store.GetUserByIdAsync(userId, ct);
+            if (target is null)
+            {
+                return Results.NotFound(new { error = "Usuario nao encontrado." });
+            }
+            var hash = PasswordHasher.Hash(body.Password!);
+            // Reset zera lockout e encerra as sessões do alvo (força novo login).
+            await store.UpdatePasswordAsync(userId, hash.Hash, hash.Salt, hash.Iterations, ct);
+            await PortalAudit.LogAsync(store, http, "PasswordReset", "User", target.Username, "Success");
+            return Results.Ok(new { userId, reset = true });
         });
 
         group.MapDelete("/{userId}", async (string userId, IProductStore store, HttpContext http, PortableModeState portable, CancellationToken ct) =>
@@ -146,3 +185,4 @@ public static class UsersEndpoints
 
 public sealed record UserCreateBody(string? Username, string? Password, string? Role);
 public sealed record UserRoleBody(string? Role);
+public sealed record UserPasswordBody(string? Password);

@@ -16,6 +16,7 @@ This page explains exactly what Direnix touches, what it stores, and what it sen
 - The collection account needs **ordinary domain read permissions**. Domain Admin is not required and not recommended.
 - The portal login is a **local application user** (salted password hash in the local database), unrelated to your AD credentials.
 - **Roles**: portal users are either **Administrator** (can collect, remediate, configure, and manage users) or **Read-only** (can only view). Read-only users are rejected on every state-changing API call, not just hidden in the UI. The account cannot be left without at least one administrator. Manage users under Operations → Portal users (admin only). Portable mode is single-user and treats the local session as administrator.
+- **Login hardening**: passwords must be at least 10 characters using 3 of 4 character classes (upper/lower/digit/symbol), enforced on create, reset and self-change. After 5 failed logins an account is locked for 15 minutes (persisted in the database, so it survives a restart). Admins can reset any user's password (which also clears the lock and ends that user's sessions); users can change their own password (requires the current one). Active sessions and last-login are shown in the users panel. A locked-out sole administrator can recover with `Direnix.Service.exe --reset-admin`.
 
 ## What is stored, and where
 

@@ -139,6 +139,8 @@ const I18N = {
     "notif.title": "Digest matinal", "notif.note": "Envia o resumo da ronda (o que mudou, novos riscos, indicadores) ao fim da coleta agendada. Assim a informação chega até você — sem precisar lembrar de abrir o portal.", "notif.policy": "Quando enviar", "notif.onlyActivity": "Só quando houver atividade", "notif.always": "Sempre após a coleta", "notif.lang": "Idioma do digest", "notif.on": "Ativado", "notif.off": "Desativado", "notif.smtpTitle": "E-mail (SMTP)", "notif.smtpEnabled": "Habilitar e-mail", "notif.smtpHost": "Servidor SMTP", "notif.smtpPort": "Porta", "notif.smtpTls": "STARTTLS", "notif.smtpUser": "Usuário", "notif.smtpPass": "Senha", "notif.passPlaceholder": "(inalterada)", "notif.smtpFrom": "Remetente", "notif.smtpTo": "Destinatários", "notif.webhookTitle": "Webhook (Teams/Slack/automações)", "notif.webhookEnabled": "Habilitar webhook", "notif.webhookUrl": "URL do webhook", "notif.test": "Enviar teste agora", "notif.last": "Último envio", "notif.saved": "Notificações salvas.", "notif.testing": "Enviando teste…", "notif.skipped": "Pulado", "notif.noChannel": "Nenhum canal habilitado.",
     "svc.title": "Configuração do serviço", "svc.note": "Define como o serviço Windows roda. Para coleta automática segura, use uma gMSA (só o nome da conta; o Windows gerencia a senha).", "svc.curIdentity": "Identidade atual", "svc.curStartup": "Inicialização atual", "svc.startup": "Tipo de inicialização", "svc.startAuto": "Automático", "svc.startDelayed": "Automático (atraso)", "svc.startManual": "Manual", "svc.identity": "Identidade (Log On As)", "svc.idLocalSystem": "LocalSystem", "svc.idGmsa": "Conta gerenciada (gMSA)", "svc.account": "Conta gMSA", "svc.apply": "Aplicar configuração", "svc.restart": "Reinicie o serviço para a nova conta valer.",
     "users.title": "Usuários do portal", "users.note": "Contas de acesso ao portal. Administrador altera tudo; Somente leitura apenas visualiza (não coleta, não remedia, não configura).", "users.user": "Usuário", "users.role": "Papel", "users.created": "Criado em", "users.empty": "Nenhum usuário", "users.add": "Novo usuário", "users.pass": "Senha (mín. 8)", "users.readonly": "Somente leitura", "users.admin": "Administrador", "users.create": "Criar usuário", "users.you": "(você)", "users.createdOk": "Usuário criado.", "users.deleted": "Usuário removido.", "users.confirmDel": "Excluir o usuário {0}?",
+    "users.status": "Status", "users.lastLogin": "Último acesso", "users.online": "Online", "users.offline": "—", "users.locked": "Bloqueado", "users.reset": "Redefinir senha", "users.resetPrompt": "Nova senha para {0} (mín. 10, 3 classes):", "users.resetOk": "Senha de {0} redefinida.",
+    "acct.title": "Minha conta", "acct.note": "Trocar a própria senha. A troca encerra suas outras sessões.", "acct.current": "Senha atual", "acct.new": "Nova senha", "acct.policy": "Mínimo 10 caracteres, com ao menos 3 de: maiúsculas, minúsculas, números, símbolos.", "acct.change": "Trocar senha", "acct.ok": "Senha alterada.", "auth.forgot": "Esqueceu a senha? Peça a um administrador para redefinir. O administrador pode redefinir a própria conta reiniciando o serviço com Direnix.Service.exe --reset-admin.",
     "exc.expires": "Expira em", "exc.empty": "Nenhuma exceção registrada", "exc.remove": "Remover", "exc.newName": "Nome do novo perfil:"
   },
   en: {
@@ -278,6 +280,8 @@ const I18N = {
     "notif.title": "Morning digest", "notif.note": "Sends the rounds summary (what changed, new risks, indicators) at the end of the scheduled collection. The information reaches you — no need to remember to open the portal.", "notif.policy": "When to send", "notif.onlyActivity": "Only when there is activity", "notif.always": "Always after collection", "notif.lang": "Digest language", "notif.on": "On", "notif.off": "Off", "notif.smtpTitle": "Email (SMTP)", "notif.smtpEnabled": "Enable email", "notif.smtpHost": "SMTP server", "notif.smtpPort": "Port", "notif.smtpTls": "STARTTLS", "notif.smtpUser": "Username", "notif.smtpPass": "Password", "notif.passPlaceholder": "(unchanged)", "notif.smtpFrom": "From", "notif.smtpTo": "Recipients", "notif.webhookTitle": "Webhook (Teams/Slack/automations)", "notif.webhookEnabled": "Enable webhook", "notif.webhookUrl": "Webhook URL", "notif.test": "Send test now", "notif.last": "Last send", "notif.saved": "Notifications saved.", "notif.testing": "Sending test…", "notif.skipped": "Skipped", "notif.noChannel": "No channel enabled.",
     "svc.title": "Service configuration", "svc.note": "Defines how the Windows service runs. For secure scheduled collection, use a gMSA (account name only; Windows manages the password).", "svc.curIdentity": "Current identity", "svc.curStartup": "Current startup", "svc.startup": "Startup type", "svc.startAuto": "Automatic", "svc.startDelayed": "Automatic (delayed)", "svc.startManual": "Manual", "svc.identity": "Identity (Log On As)", "svc.idLocalSystem": "LocalSystem", "svc.idGmsa": "Managed account (gMSA)", "svc.account": "gMSA account", "svc.apply": "Apply configuration", "svc.restart": "Restart the service for the new account to take effect.",
     "users.title": "Portal users", "users.note": "Portal access accounts. Admin can change everything; Read-only can only view (no collection, no remediation, no configuration).", "users.user": "User", "users.role": "Role", "users.created": "Created", "users.empty": "No users", "users.add": "New user", "users.pass": "Password (min. 8)", "users.readonly": "Read-only", "users.admin": "Administrator", "users.create": "Create user", "users.you": "(you)", "users.createdOk": "User created.", "users.deleted": "User removed.", "users.confirmDel": "Delete user {0}?",
+    "users.status": "Status", "users.lastLogin": "Last login", "users.online": "Online", "users.offline": "—", "users.locked": "Locked", "users.reset": "Reset password", "users.resetPrompt": "New password for {0} (min. 10, 3 classes):", "users.resetOk": "Password for {0} reset.",
+    "acct.title": "My account", "acct.note": "Change your own password. This ends your other sessions.", "acct.current": "Current password", "acct.new": "New password", "acct.policy": "At least 10 characters, with 3 of: uppercase, lowercase, digits, symbols.", "acct.change": "Change password", "acct.ok": "Password changed.", "auth.forgot": "Forgot your password? Ask an administrator to reset it. An administrator can reset their own account by restarting the service with Direnix.Service.exe --reset-admin.",
     "exc.expires": "Expires", "exc.empty": "No exceptions registered", "exc.remove": "Remove", "exc.newName": "New profile name:"
   }
 };
@@ -1535,6 +1539,9 @@ function showAuth(needsSetup) {
   text("auth-sub", needsSetup ? t("auth.subSetup") : t("auth.sub"));
   text("auth-submit", needsSetup ? t("auth.create") : t("auth.login"));
   const err = byId("auth-error"); if (err) err.hidden = true;
+  // Dica de política aparece ao criar o administrador; "esqueci a senha" ao logar.
+  const pol = byId("auth-policy"); if (pol) pol.hidden = !needsSetup;
+  const forgot = byId("auth-forgot"); if (forgot) forgot.hidden = needsSetup;
   byId("auth-username")?.focus();
 }
 async function bootAuth() {
@@ -1560,6 +1567,7 @@ async function startApp() {
   loadNotifications();
   loadUpdate();
   loadUsers();
+  loadAccount();
 }
 async function submitAuth() {
   const username = byId("auth-username")?.value.trim();
@@ -1773,6 +1781,13 @@ async function loadUsers() {
     renderUsers(data.items || []);
   } catch { panel.hidden = true; }
 }
+function statusCell(u) {
+  const parts = [];
+  if (u.online) parts.push(`<span class="pill pill-on">${t("users.online")}</span>`);
+  if (u.locked) parts.push(`<span class="pill pill-locked">${t("users.locked")}</span>`);
+  if (parts.length === 0) parts.push(`<span class="muted-row">${t("users.offline")}</span>`);
+  return parts.join(" ");
+}
 function renderUsers(items) {
   text("users-tag", `${items.length}`);
   const body = byId("users-body"), empty = byId("users-empty");
@@ -1780,11 +1795,19 @@ function renderUsers(items) {
   body.innerHTML = items.map((u) => {
     const other = u.role === "LocalAdmin" ? "ReadOnlyTechnical" : "LocalAdmin";
     const roleBtn = u.isSelf ? "" : `<button class="secondary-button" type="button" data-role="${escapeHtml(u.userId)}" data-to="${other}">${roleLabel(other)}</button>`;
+    const resetBtn = `<button class="secondary-button" type="button" data-reset="${escapeHtml(u.userId)}" data-name="${escapeHtml(u.username)}">${t("users.reset")}</button>`;
     const delBtn = u.isSelf ? `<span class="muted-row">${t("users.you")}</span>` : `<button class="secondary-button danger" type="button" data-del="${escapeHtml(u.userId)}" data-name="${escapeHtml(u.username)}">${t("settings.delete")}</button>`;
-    return `<tr><td>${escapeHtml(u.username)}</td><td>${roleLabel(u.role)}</td><td>${fmtDate(u.createdAt)}</td><td class="row-actions">${roleBtn} ${delBtn}</td></tr>`;
+    return `<tr><td>${escapeHtml(u.username)}</td><td>${roleLabel(u.role)}</td><td>${statusCell(u)}</td><td>${u.lastLogin ? fmtDate(u.lastLogin) : "—"}</td><td class="row-actions">${roleBtn} ${resetBtn} ${delBtn}</td></tr>`;
   }).join("");
   body.querySelectorAll("[data-role]").forEach((b) => b.addEventListener("click", () => changeRole(b.dataset.role, b.dataset.to)));
+  body.querySelectorAll("[data-reset]").forEach((b) => b.addEventListener("click", () => resetUserPassword(b.dataset.reset, b.dataset.name)));
   body.querySelectorAll("[data-del]").forEach((b) => b.addEventListener("click", () => deleteUser(b.dataset.del, b.dataset.name)));
+}
+async function resetUserPassword(userId, name) {
+  const pwd = prompt(t("users.resetPrompt").replace("{0}", name));
+  if (!pwd) return;
+  try { await sendJson(`/api/v1/users/${userId}/password`, "PUT", { password: pwd }); text("users-result", t("users.resetOk").replace("{0}", name)); loadUsers(); }
+  catch (e) { text("users-result", e.message); }
 }
 async function createUser() {
   const username = byId("user-name")?.value.trim();
@@ -1807,6 +1830,25 @@ async function deleteUser(userId, name) {
   catch (e) { text("users-result", e.message); }
 }
 byId("user-add")?.addEventListener("click", createUser);
+
+// ---------------- minha conta (qualquer usuário logado) ----------------
+function loadAccount() {
+  const panel = byId("account-panel"); if (!panel) return;
+  if (!sessionUser || portableMode || demoMode) { panel.hidden = true; return; }
+  panel.hidden = false;
+  // "Quem está logado": nome + papel na etiqueta do painel.
+  text("acct-user", `${sessionUser}${isAdmin ? " · " + t("users.admin") : " · " + t("users.readonly")}`);
+}
+async function changeMyPassword() {
+  const currentPassword = byId("acct-current")?.value ?? "";
+  const newPassword = byId("acct-new")?.value ?? "";
+  try {
+    await postJson("/api/v1/auth/change-password", { currentPassword, newPassword });
+    byId("acct-current").value = ""; byId("acct-new").value = "";
+    text("acct-result", t("acct.ok"));
+  } catch (e) { text("acct-result", e.message); }
+}
+byId("acct-change")?.addEventListener("click", changeMyPassword);
 
 // ---------------- service config ----------------
 function svcIdentityUi() {

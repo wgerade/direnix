@@ -113,6 +113,14 @@ public interface IProductStore
     Task DeleteUserAsync(string userId, CancellationToken cancellationToken);
     Task UpdateUserRoleAsync(string userId, string role, CancellationToken cancellationToken);
     Task<int> CountUsersByRoleAsync(string role, CancellationToken cancellationToken);
+    /// <summary>Registra falha de login: incrementa o contador e tranca se passar do limite.</summary>
+    Task RegisterFailedLoginAsync(string username, DateTimeOffset now, CancellationToken cancellationToken);
+    /// <summary>Login bem-sucedido: zera o contador/lockout e grava o último acesso.</summary>
+    Task RegisterSuccessfulLoginAsync(string username, DateTimeOffset now, CancellationToken cancellationToken);
+    /// <summary>Troca a senha (por userId), zera lockout e encerra as sessões do usuário.</summary>
+    Task UpdatePasswordAsync(string userId, string passwordHash, string salt, int iterations, CancellationToken cancellationToken);
+    /// <summary>Usuários com sessão ativa (não expirada) — para "quem está logado".</summary>
+    Task<IReadOnlyList<string>> ListActiveSessionUsernamesAsync(DateTimeOffset now, CancellationToken cancellationToken);
     Task CreateSessionAsync(Auth.AppSession session, CancellationToken cancellationToken);
     Task<Auth.AppSession?> GetSessionAsync(string token, CancellationToken cancellationToken);
     Task DeleteSessionAsync(string token, CancellationToken cancellationToken);

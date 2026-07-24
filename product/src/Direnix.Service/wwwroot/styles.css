@@ -71,6 +71,10 @@ body {
 .sidebar-status { margin-top: auto; display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--muted); }
 .update-badge { display: block; margin-top: 0.5rem; padding: 0.4rem 0.6rem; border-radius: 6px; background: #1f6feb; color: #fff; font-size: 0.78rem; font-weight: 600; text-decoration: none; text-align: center; }
 .update-badge:hover { filter: brightness(1.08); }
+.pill { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; }
+.pill-on { background: rgba(22,163,74,0.15); color: #16a34a; }
+.pill-locked { background: rgba(220,38,38,0.15); color: #dc2626; }
+.auth-policy, .auth-forgot { font-size: 0.76rem; margin: 0.3rem 0; }
 .status-light { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); }
 .status-light.ready { background: #16a34a; }
 .status-light.error { background: var(--sev-critical); }
