@@ -19,6 +19,8 @@ const I18N = {
     "demo.enter": "Explorar com dados de exemplo", "demo.banner": "MODO DEMO — dados fictícios, nada é salvo",
     "demo.exit": "Sair do demo", "demo.readonly": "Ação indisponível no modo demo",
     "indicators.title": "Indicadores operacionais", "indicators.empty": "Nenhum indicador neste ciclo",
+    "indb.IND-PWD-EXPIRING": "Senhas vencendo", "indb.IND-PWD-EXPIRED": "Senhas expiradas", "indb.IND-ACCT-LOCKED": "Contas bloqueadas", "indb.IND-ACCT-EXPIRING": "Contas a expirar",
+    "indcat.Senha": "Senha", "indcat.Conta": "Conta", "indcat.Contas": "Contas", "indcat.Custom": "Personalizado",
     "ind.title": "Indicadores operacionais", "ind.note": "Contagens do dia a dia (senhas vencendo, contas bloqueadas…). Rodam junto da coleta deste perfil, inclusive a agendada.",
     "ind.horizon": "Horizonte \"vencendo/expirar\" (dias)", "ind.custom": "Indicadores customizados",
     "ind.customNote": "Sua própria consulta: um filtro LDAP, ou um comando PowerShell Get-AD* (aceita -Filter, -LDAPFilter ou -Identity). Executamos sempre como busca LDAP read-only — o PowerShell nunca é executado.",
@@ -155,6 +157,8 @@ const I18N = {
     "demo.enter": "Explore with sample data", "demo.banner": "DEMO MODE — fictional data, nothing is saved",
     "demo.exit": "Exit demo", "demo.readonly": "Not available in demo mode",
     "indicators.title": "Operational indicators", "indicators.empty": "No indicators this cycle",
+    "indb.IND-PWD-EXPIRING": "Passwords expiring", "indb.IND-PWD-EXPIRED": "Passwords expired", "indb.IND-ACCT-LOCKED": "Locked accounts", "indb.IND-ACCT-EXPIRING": "Accounts expiring",
+    "indcat.Senha": "Password", "indcat.Conta": "Account", "indcat.Contas": "Accounts", "indcat.Custom": "Custom",
     "ind.title": "Operational indicators", "ind.note": "Day-to-day counts (passwords expiring, locked accounts…). They run with this profile's collection, including the scheduled one.",
     "ind.horizon": "\"Expiring\" horizon (days)", "ind.custom": "Custom indicators",
     "ind.customNote": "Your own query: an LDAP filter, or a PowerShell Get-AD* command (accepts -Filter, -LDAPFilter or -Identity). We always run it as a read-only LDAP search — PowerShell is never executed.",
@@ -502,7 +506,7 @@ const RULES = {
         "Enable via the AD Administrative Center (dsac.exe) > click the domain > 'Enable Recycle Bin', OR via PowerShell (validate with -WhatIf first).",
         "If already enabled but with short retention, adjust msDS-deletedObjectLifetime per the approved retention policy.",
         "Validate recovery: delete a test object and restore it from the AD Administrative Center."
-      ] },
+      ] } },
   // Regras novas: PT vem do catálogo (fallback); aqui só o EN.
   "ADCLN-GROUP-EMPTY-011": { en: { title: "Empty security group (no members)",
     impact: "Empty groups clutter the directory, hinder least-privilege and can be silently repopulated.",
@@ -543,13 +547,18 @@ const RULES = {
   "ADGOV-LOSTFOUND-023": { en: { title: "Orphaned objects in LostAndFound",
     impact: "Objects in the LostAndFound container lost their parent (e.g., created on one DC while the parent OU was deleted on another). They are orphans to reconcile.",
     manual: ["List the LostAndFound objects and decide to move (to the right OU) or delete.", "Move with Move-ADObject or delete if obsolete.", "After large cleanups, run semantic database analysis (ntdsutil 'semantic database analysis' > go fixup) and consider offline defrag."] } }
-  }
 };
 function ruleText(ruleId, field, fallback) {
   const r = RULES[ruleId]; if (!r) return fallback;
   const loc = r[lang] || r.pt; return (loc && loc[field] !== undefined) ? loc[field] : fallback;
 }
 function ruleTitle(ruleId, fallback) { return ruleText(ruleId, "title", fallback); }
+
+// Indicadores built-in têm título/categoria gravados em PT pelo backend. Traduz pelo
+// id estável; custom mantém o nome dado pelo usuário. Categoria traduz com fallback.
+const BUILTIN_IND = { "IND-PWD-EXPIRING": 1, "IND-PWD-EXPIRED": 1, "IND-ACCT-LOCKED": 1, "IND-ACCT-EXPIRING": 1 };
+function indTitle(ind) { return BUILTIN_IND[ind.id] ? t("indb." + ind.id) : ind.title; }
+function indCat(cat) { const k = "indcat." + cat; const v = t(k); return v === k ? cat : v; }
 
 let lang = localStorage.getItem("adc-lang") || "pt";
 function t(key) { return (I18N[lang] && I18N[lang][key]) || I18N.pt[key] || key; }
@@ -710,7 +719,7 @@ async function loadIndicators() {
     if (indicatorsCache.length === 0) { grid.innerHTML = ""; renderIndicatorsEmpty(empty); return; }
     if (empty) empty.hidden = true;
     grid.innerHTML = indicatorsCache.map((i) =>
-      `<button class="morning-card${i.count > 0 ? "" : " muted-card"}" data-ind="${escapeHtml(i.id)}"><strong>${i.count}</strong><span>${escapeHtml(i.title)}</span></button>`).join("");
+      `<button class="morning-card${i.count > 0 ? "" : " muted-card"}" data-ind="${escapeHtml(i.id)}"><strong>${i.count}</strong><span>${escapeHtml(indTitle(i))}</span></button>`).join("");
     grid.querySelectorAll("[data-ind]").forEach((b) => b.addEventListener("click", () => openIndicatorDetail(b.dataset.ind)));
   } catch { indicatorsCache = []; grid.innerHTML = ""; renderIndicatorsEmpty(empty); }
 }
@@ -728,8 +737,8 @@ function openIndicatorDetail(id) {
   const items = ind.items || [];
   const rows = items.length === 0 ? `<li class="muted-row">—</li>` : items.map((it) =>
     `<li><span>${escapeHtml(it.display)}</span>${it.detail ? `<small>${escapeHtml(it.detail)}</small>` : ""}<code>${escapeHtml(it.distinguishedName)}</code>${it.objectSid ? `<code>${escapeHtml(it.objectSid)}</code>` : ""}</li>`).join("");
-  content.innerHTML = `<div class="drawer-head"><h2>${escapeHtml(ind.title)}</h2>
-    <p class="drawer-sub">${escapeHtml(ind.category)} · ${ind.count} ${t("ind.matches")}</p></div>
+  content.innerHTML = `<div class="drawer-head"><h2>${escapeHtml(indTitle(ind))}</h2>
+    <p class="drawer-sub">${escapeHtml(indCat(ind.category))} · ${ind.count} ${t("ind.matches")}</p></div>
     <ul class="evidence-list ind-item-list">${rows}</ul>`;
   drawer.hidden = false;
 }
@@ -749,7 +758,7 @@ async function loadMorning() {
     if (total === 0) { grid.innerHTML = ""; renderMorningEmpty(empty); return; }
     if (empty) empty.hidden = true;
     const opCards = opInds.map((i) =>
-      `<button class="morning-card morning-op" data-ind="${escapeHtml(i.id)}"><strong>${i.count}</strong><span>${escapeHtml(i.title)}</span></button>`).join("");
+      `<button class="morning-card morning-op" data-ind="${escapeHtml(i.id)}"><strong>${i.count}</strong><span>${escapeHtml(indTitle(i))}</span></button>`).join("");
     const order = ["PrivilegedMemberAdded","ObjectDeleted","DangerousFlagSet","AdminCountChanged","SpnAdded","AccountEnabled","ObjectCreated","MemberAdded","MemberRemoved","GpoLinkChanged","AccountDisabled","PrivilegedMemberRemoved","DangerousFlagCleared","AttributeChanged"];
     items.sort((a, b) => order.indexOf(a.changeType) - order.indexOf(b.changeType));
     // Card de riscos novos (apontamentos das ultimas 24h ainda ativos) em primeiro.

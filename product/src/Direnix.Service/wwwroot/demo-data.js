@@ -21,21 +21,21 @@
   });
 
   const findings = [
-    finding("F-KRB-01", "AD-HRD-010", "Senha do krbtgt sem rotação há 380 dias", "Hardening", "Critical", 95, "Implement", "krbtgt", DN("krbtgt"), 400),
-    finding("F-DELEG-01", "AD-PRIV-020", "Delegação irrestrita em servidor de aplicação", "PrivilegedAccess", "Critical", 92, "Adjust", "SRV-APP01$", DN("SRV-APP01", "Servidores"), 300),
-    finding("F-SPN-01", "AD-PRIV-011", "Conta privilegiada com SPN (kerberoastable)", "PrivilegedAccess", "High", 85, "Investigate", "svc-sql", DN("svc-sql", "Servicos"), 160),
-    finding("F-PWDNEVER-01", "AD-PRIV-005", "Senha nunca expira em conta privilegiada", "PrivilegedAccess", "High", 80, "Adjust", "adm-legado", DN("adm-legado", "Admins"), 700),
-    finding("F-MAQ-01", "AD-HRD-002", "MachineAccountQuota acima do esperado (10)", "Hardening", "High", 74, "Adjust", DOMAIN, "DC=corp,DC=exemplo,DC=local", 700),
-    finding("F-GUEST-01", "AD-HRD-004", "Conta Guest habilitada", "Hardening", "High", 70, "CleanUp", "Guest", DN("Guest"), 700),
-    finding("F-ADMCNT-01", "AD-PRIV-008", "adminCount órfão (conta fora de grupos protegidos)", "PrivilegedAccess", "Medium", 55, "CleanUp", "j.pereira", DN("j.pereira"), 350),
-    finding("F-STALE-01", "AD-HYG-001", "Conta sem uso há 120 dias", "Hygiene", "Medium", 50, "Decommission", "m.santos", DN("m.santos"), 120),
-    finding("F-STALE-02", "AD-HYG-001", "Conta sem uso há 96 dias", "Hygiene", "Medium", 48, "Decommission", "r.almeida", DN("r.almeida"), 96),
-    finding("F-CMPOLD-01", "AD-HYG-002", "Computador obsoleto (sem logon há 200 dias)", "Hygiene", "Medium", 45, "Decommission", "WS-0142$", DN("WS-0142", "Workstations"), 200),
-    finding("F-DISAB-01", "AD-HYG-003", "Conta desabilitada retida há 210 dias", "Hygiene", "Low", 30, "CleanUp", "ex.func01", DN("ex.func01", "Desligados"), 210),
-    finding("F-GRPEMPTY-01", "AD-HYG-010", "Grupo vazio há 90 dias", "Hygiene", "Low", 25, "CleanUp", "GRP-Projeto-Antigo", DN("GRP-Projeto-Antigo", "Grupos"), 90),
-    finding("F-OUEMPTY-01", "AD-HYG-011", "OU vazia", "Hygiene", "Low", 20, "CleanUp", "OU=Temp", "OU=Temp,DC=corp,DC=exemplo,DC=local", 60),
-    finding("F-RECYC-01", "AD-GOV-001", "Lixeira do AD desativada", "Governance", "Medium", 60, "Implement", DOMAIN, "DC=corp,DC=exemplo,DC=local", 700),
-    finding("F-PWDNOTREQ-01", "AD-HRD-006", "PasswordNotRequired em conta ativa", "Hardening", "High", 78, "Adjust", "svc-print", DN("svc-print", "Servicos"), 500)
+    finding("F-KRB-01", "ADPRV-KRBTGT-AGE-010", "Senha do krbtgt sem rotação há 380 dias", "Hardening", "Critical", 95, "Implement", "krbtgt", DN("krbtgt"), 400),
+    finding("F-DELEG-01", "ADSVC-UNCONSTR-004", "Delegação irrestrita em servidor de aplicação", "PrivilegedAccess", "Critical", 92, "Adjust", "SRV-APP01$", DN("SRV-APP01", "Servidores"), 300),
+    finding("F-SPN-01", "ADPRV-KERBEROAST-019", "Conta privilegiada com SPN (kerberoastable)", "PrivilegedAccess", "High", 85, "Investigate", "svc-sql", DN("svc-sql", "Servicos"), 160),
+    finding("F-PWDNEVER-01", "ADHARD-PWDNOEXPIRE-017", "Senha nunca expira em conta privilegiada", "PrivilegedAccess", "High", 80, "Adjust", "adm-legado", DN("adm-legado", "Admins"), 700),
+    finding("F-MAQ-01", "ADAUTH-MAQ-009", "MachineAccountQuota acima do esperado (10)", "Hardening", "High", 74, "Adjust", DOMAIN, "DC=corp,DC=exemplo,DC=local", 700),
+    finding("F-GUEST-01", "ADHARD-REVERSIBLEPWD-018", "Conta Guest habilitada", "Hardening", "High", 70, "CleanUp", "Guest", DN("Guest"), 700),
+    finding("F-ADMCNT-01", "ADPRV-ADMINCOUNT-ORPHAN-021", "adminCount órfão (conta fora de grupos protegidos)", "PrivilegedAccess", "Medium", 55, "CleanUp", "j.pereira", DN("j.pereira"), 350),
+    finding("F-STALE-01", "ADCLN-USER-STALE-001", "Conta sem uso há 120 dias", "Hygiene", "Medium", 50, "Decommission", "m.santos", DN("m.santos"), 120),
+    finding("F-STALE-02", "ADCLN-USER-STALE-001", "Conta sem uso há 96 dias", "Hygiene", "Medium", 48, "Decommission", "r.almeida", DN("r.almeida"), 96),
+    finding("F-CMPOLD-01", "ADCLN-COMP-STALE-003", "Computador obsoleto (sem logon há 200 dias)", "Hygiene", "Medium", 45, "Decommission", "WS-0142$", DN("WS-0142", "Workstations"), 200),
+    finding("F-DISAB-01", "ADCLN-USER-DISABLED-RETENTION-002", "Conta desabilitada retida há 210 dias", "Hygiene", "Low", 30, "CleanUp", "ex.func01", DN("ex.func01", "Desligados"), 210),
+    finding("F-GRPEMPTY-01", "ADCLN-GROUP-EMPTY-011", "Grupo vazio há 90 dias", "Hygiene", "Low", 25, "CleanUp", "GRP-Projeto-Antigo", DN("GRP-Projeto-Antigo", "Grupos"), 90),
+    finding("F-OUEMPTY-01", "ADCLN-OU-EMPTY-012", "OU vazia", "Hygiene", "Low", 20, "CleanUp", "OU=Temp", "OU=Temp,DC=corp,DC=exemplo,DC=local", 60),
+    finding("F-RECYC-01", "ADGOV-RECYCLEBIN-001", "Lixeira do AD desativada", "Governance", "Medium", 60, "Implement", DOMAIN, "DC=corp,DC=exemplo,DC=local", 700),
+    finding("F-PWDNOTREQ-01", "ADHARD-PWDNOTREQD-016", "PasswordNotRequired em conta ativa", "Hardening", "High", 78, "Adjust", "svc-print", DN("svc-print", "Servicos"), 500)
   ];
 
   const sev = { Critical: 2, High: 5, Medium: 5, Low: 3, Info: 0 };
