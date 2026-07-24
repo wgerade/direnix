@@ -49,6 +49,19 @@ de vida e os contratos `CollectionRun`/`Collector`).
 | `NeedsOwnerDecision` | Precisa decisao de owner. | Cleanup pode impactar aplicacao, usuario, servico ou processo. | Exportar para owner com prazo e decisao. |
 | `AcceptedRisk` | Risco aceito temporariamente. | Owner aprovou manter risco por periodo definido. | Acompanhar vencimento e exigir renovacao ou remediacao. |
 
+## Scores da Postura — duas direcoes, de proposito
+
+O portal mostra dois numeros de postura que **andam em sentidos opostos**. Isso e intencional; confundi-los faz parecer que "o score esta invertido".
+
+| Metrica | Direcao | Seguro tende a | Calculo | Analogia |
+| --- | --- | --- | --- | --- |
+| **Identity Score** (e **Tier 0**) | Maior = melhor | **100** | `100 - penalidades ponderadas dos achados ativos` (clamp 0-100); saude verde >=90, amarelo >=70, vermelho abaixo | Microsoft Secure Score, nota de prova. E o numero "de vitrine" (sobe quando voce melhora). |
+| **Exposicao maxima** (`maxExposure`) | Menor = melhor | **0** | `MAX(business_risk_score)` dos achados ativos (0-100) | PingCastle risk score. Severidade do pior achado presente. |
+
+Regra pratica: **Identity Score = "quao saudavel esta"** (quero perto de 100); **Exposicao maxima = "quao grave e o pior problema aberto"** (quero perto de 0). Um ambiente limpo mostra Identity Score 100 e Exposicao maxima 0 ao mesmo tempo — nao ha contradicao.
+
+Historico: ate v0.8 essa segunda metrica se chamava "Indice de risco", o que a fazia parecer um segundo *score* competindo com o Identity Score; renomeada para "Exposicao maxima" na v0.9 para deixar a direcao obvia.
+
 ## Regra de Ouro
 
 Ultimo run nao e igual a estado atual. O estado atual conhecido e a melhor composicao das observacoes validas mais recentes por objeto, com idade e cobertura explicitas.

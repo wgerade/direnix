@@ -9,7 +9,9 @@ public static class ProductApplicationEndpoints
 {
     private static readonly (string Key, string Label, string Unit)[] MetricCatalog =
     [
-        ("riskScore", "riskScore", "0-100"),
+        // "Exposição máxima" = severidade do pior achado ativo (MAX business_risk_score).
+        // Direção oposta ao Identity Score de propósito: aqui MENOR é melhor (0 = seguro).
+        ("riskScore", "maxExposure", "/100"),
         ("findings", "activeRisks", "items"),
         ("staleObjects", "staleObjects", "objects"),
         ("privilegedExposure", "privilegedExposure", "items")

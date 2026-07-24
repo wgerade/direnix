@@ -46,7 +46,7 @@
     product: { name: "Direnix", mode: "Demo", portalUrl: "http://127.0.0.1:8787/" },
     dataContext: { source: "demo", hasCompletedCollection: true, latestRunId: RUN2, latestRunStartedAt: iso(7), latestRunCompletedAt: iso(6.8), domainName: DOMAIN, coverageMode: "Full" },
     metrics: [
-      { key: "riskScore", label: "riskScore", value: 71, unit: "0-100", state: "measured" },
+      { key: "riskScore", label: "maxExposure", value: 94, unit: "/100", state: "measured" },
       { key: "findings", label: "activeRisks", value: 15, unit: "items", state: "measured" },
       { key: "staleObjects", label: "staleObjects", value: 34, unit: "objects", state: "measured" },
       { key: "privilegedExposure", label: "privilegedExposure", value: 6, unit: "items", state: "measured" }
