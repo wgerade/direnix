@@ -6,7 +6,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AssemblyName>Direnix.Service</AssemblyName>
     <RootNamespace>Direnix.Service</RootNamespace>
-    <Version>0.9.1</Version>
+    <Version>0.9.2</Version>
     <!-- Embute o wwwroot no assembly para o modo portátil (single-file): o exe
          sozinho serve o portal, sem depender de uma pasta wwwroot no disco. -->
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
